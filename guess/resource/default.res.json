@@ -1,0 +1,25 @@
+{
+	"groups": [
+		{
+			"keys": "guessConfig_json,guess_atlas0_png,guess",
+			"name": "preload"
+		}
+	],
+	"resources": [
+		{
+			"url": "assets/guess.bin",
+			"type": "bin",
+			"name": "guess"
+		},
+		{
+			"url": "assets/guess_atlas0.png",
+			"type": "image",
+			"name": "guess_atlas0_png"
+		},
+		{
+			"url": "config/guessConfig.json",
+			"type": "json",
+			"name": "guessConfig_json"
+		}
+	]
+}
