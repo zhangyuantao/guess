@@ -6,10 +6,10 @@
     "ShareRewardGold":10,
     "CashNeedMoney":20,
     "SignMoneyRewardRange":[0.01,0.5],
-    "FavoriteTipId":5,
-    "ShowBannerId":10,
+    "FavoriteTipLevel":5,
+    "ShowBannerLevel":10,
     "LevelsOfStage":40,
     "LevelsOfSubstage":10,
     "StageNames":["小学生","中学生","优等生","学霸","超级学霸"],
-    "DayDrawLotteryLimit":1
+    "DayDrawLotteryMax":1
 }
