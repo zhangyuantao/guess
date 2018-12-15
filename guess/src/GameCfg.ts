@@ -15,7 +15,7 @@ module guess {
 			return GameCfg.testCfg;
 		}
 	
-		public static getITestInfo(lv:number):ITestInfo{
+		public static getTestInfo(lv:number):ITestInfo{
 			return GameCfg.getTestCfg().testLib[lv] || null;
 		}
 	}
