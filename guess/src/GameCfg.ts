@@ -1,7 +1,7 @@
 module guess {
 	export class GameCfg {
-		public static readonly frameTime:number = 33;
 		public static cfg:IGameCfg = null;
+		public static testCfg:ITestCfg = null;
 
 		public static getCfg():IGameCfg{
 			if(!GameCfg.cfg)			
@@ -9,9 +9,14 @@ module guess {
 			return GameCfg.cfg;
 		}
 
-		public static getLevelCfg(lv:number):ILevelCfg{
-			if(lv > 8) lv = 8;
-			return GameCfg.getCfg().LevelCfg[lv];
+		public static getTestCfg():ITestCfg{
+			if(!GameCfg.testCfg)
+				GameCfg.testCfg = RES.getRes('testConfig_json');
+			return GameCfg.testCfg;
+		}
+	
+		public static getITestInfo(lv:number):ITestInfo{
+			return GameCfg.getTestCfg().testLib[lv] || null;
 		}
 	}
 }

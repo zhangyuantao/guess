@@ -16,6 +16,10 @@ module guess {
 		DayDrawLotteryMax:number;			// 每日抽奖次数上限
 	}
 
+	export interface ITestCfg{
+		testLib:ITestInfo[];
+	}
+
 	export interface ITestInfo{
 		level:number;
 		money:number,
@@ -23,5 +27,12 @@ module guess {
 		tips:string[];
 		answer:string;
 		option:string;
+	}
+	
+	export interface IGameData{
+		gold:number;
+		money:number;
+		curLevel:number;
+		toDayWatchAdCount:number;
 	}
 }
