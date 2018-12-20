@@ -10,11 +10,17 @@
 		"libs/modules/utils/utils.js"
 	],
 	"game": [
-		"bin-debug/GameCfg.js",
-		"bin-debug/LoadingUI.js",
+		"bin-debug/ui/BaseWindow.js",
+		"bin-debug/logic/TestMgr.js",
 		"bin-debug/Main.js",
 		"bin-debug/Platform.js",
 		"bin-debug/define/Interface.js",
-		"bin-debug/ui/MainWindow.js"
+		"bin-debug/logic/GameMgr.js",
+		"bin-debug/LoadingUI.js",
+		"bin-debug/GameCfg.js",
+		"bin-debug/ui/MainWindow.js",
+		"bin-debug/ui/TestWindow.js",
+		"bin-debug/ui/TipItem.js",
+		"bin-debug/ui/WordItem.js"
 	]
 }

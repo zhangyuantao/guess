@@ -61,7 +61,7 @@ class Main extends egret.DisplayObjectContainer {
         fairygui.UIPackage.addPackage("guess");        
         this.stage.addChild(fairygui.GRoot.inst.displayObject);
         this.stage.removeChild(this);
-        let wnd = new guess.MainWindow();
+        let wnd = new guess.MainWindow("guess");
         wnd.show();
     }
 }

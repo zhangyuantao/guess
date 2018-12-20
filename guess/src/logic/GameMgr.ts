@@ -5,6 +5,7 @@ module guess {
 
 		public onCreate(){
 			let self = this;
+			self.data = <IGameData>{};			
 			self.testMgr = new TestMgr();
 		}
         
@@ -12,6 +13,11 @@ module guess {
 			let self = this;
 			self.testMgr.dispose();
 			self.testMgr = null;
+		}
+
+		public startPlay(){
+			let self = this;
+			self.testMgr.setCurTest(self.data.curLevel || 1);
 		}
 	}
 }

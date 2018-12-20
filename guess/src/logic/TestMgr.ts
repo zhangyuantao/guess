@@ -13,6 +13,11 @@ module guess {
 
 		}
 
+		public setCurTest(lv:number){
+			let self = this;
+			self.curTest = self.getTestInfo(lv);
+		}
+
 		public getTestInfo(lv:number){
 			let self = this;
 			return GameCfg.getTestInfo(lv);
