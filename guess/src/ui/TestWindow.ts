@@ -16,6 +16,8 @@ module guess {
 			super.dispose();			
 			let self = this;
 			self.btnBack.removeClickListener(self.onBtnBack, self);
+			self.lstSelect.removeEventListener(fairygui.ItemEvent.CLICK, self.onSelectLstClick, self);
+			self.lstOption.removeEventListener(fairygui.ItemEvent.CLICK, self.onOptionLstClick, self);
 		}
 
 		protected initUI(){
@@ -25,7 +27,7 @@ module guess {
 
 		/**
 		 * 注册组件的拓展类
-		 */
+		 */  
 		protected registerComponents(){
 			let self = this;
 			self.registerComponent("TipItem", TipItem, "guess");
@@ -45,32 +47,120 @@ module guess {
 			self.btnBack.addClickListener(self.onBtnBack, self);
 			self.lstSelect = self.contentPane.getChild("lstSelect").asList;
 			self.lstOption = self.contentPane.getChild("lstOption").asList;
+			self.lstSelect.addEventListener(fairygui.ItemEvent.CLICK, self.onSelectLstClick, self);
+			self.lstOption.addEventListener(fairygui.ItemEvent.CLICK, self.onOptionLstClick, self);
+		}
+
+		private onSelectLstClick(e:fairygui.ItemEvent){
+			let self = this;
+			let word = e.itemObject as WordItem;
+			if(word.isEmpty())
+				return;
+			let tmp = word.char;
+			word.setChar("");
+
+			for(let i = 0; i < self.lstOption.numItems; i ++){
+				let item = self.lstOption.getChildAt(i) as WordItem;
+				if(item.char === tmp){
+					item.setChar(tmp);
+					break; 
+				}
+			}
+		}
+
+		private onOptionLstClick(e:fairygui.ItemEvent){
+			let self = this;
+			let word = e.itemObject as WordItem;
+			if(word.isEmpty())
+				return;
+			word.hide();
+
+			for(let i = 0; i < self.lstSelect.numItems; i ++){
+				let item = self.lstSelect.getChildAt(i) as WordItem;
+				if(item.isEmpty()){
+					item.setChar(word.char);					
+					break; 
+				}
+			}
+
+			// 填满后检测答案
+			self.checkAnswer();
+		}
+
+		private checkAnswer(){
+			let self = this;
+			let answer = "";
+			let isFill = true;
+			for(let i = 0; i < self.lstSelect.numItems; i ++){
+				let item = self.lstSelect.getChildAt(i) as WordItem;
+				answer += item.char;
+				if(item.isEmpty()){
+					isFill = false;	
+					break; 
+				}
+			}
+			
+			if(isFill){
+				let isRight = utils.Singleton.get(GameMgr).testMgr.checkAnswer(answer);
+				if(isRight){
+					console.log("下一题");
+					self.nextTest();
+				}
+				else
+					console.log("答错了，但是别灰心~");
+			}
 		}
 
 		public onShown(){
 			let self = this;
-			let curTest = utils.Singleton.get(GameMgr).testMgr.curTest;
-			if(!curTest)
+			self.setTest();
+		}
+
+		public nextTest(){
+			let self = this;
+			utils.Singleton.get(GameMgr).nextTest();
+			self.setTest()
+		}
+
+		public setTest(){
+			let self = this;		
+			let test = utils.Singleton.get(GameMgr).testMgr.curTest;
+			if(!test){
+				self.tip1.initInfo("1", "猴赛雷~");
+				self.tip2.initInfo("2", "题库");
+				self.tip3.initInfo("3", "被你");
+				self.tip4.initInfo("4", "答爆啦~");
+				self.lstOption.numItems = 0;
+				self.lstSelect.numItems = 0;
 				return console.log("当前试题为空！");
+			}
 
-			self.tip1.initInfo("1", curTest.tips[0]);
-			self.tip2.initInfo("2", curTest.tips[1]);
-			self.tip3.initInfo("3", curTest.tips[2]);
-			self.tip4.initInfo("4", curTest.tips[3]);
+			self.tip1.initInfo("1", test.tips[0]);
+			self.tip2.initInfo("2", test.tips[1]);
+			self.tip3.initInfo("3", test.tips[2]);
+			self.tip4.initInfo("4", test.tips[3]);
 
-			self.lstSelect.numItems = 0;
-
-			let ops = curTest.option.split(",");
+			let ops = test.option.split(",");
 			for(let i = 0, len = ops.length; i < len; i++){
-				let item = fairygui.UIPackage.createObject("guess", "WordItem") as WordItem;
-				item.initChar(ops[i]);
-				self.lstOption.addChild(item);
+				let item;
+				if(i < self.lstOption.numItems)
+					item = self.lstOption.getChildAt(i);
+				else{
+					item = fairygui.UIPackage.createObject("guess", "WordItem");				
+					self.lstOption.addChild(item);
+				}
+				(item as WordItem).setChar(ops[i])
 			}			
 
-			for(let i = 0; i < curTest.answer.length; i++){
-				let item = fairygui.UIPackage.createObject("guess", "WordItem") as WordItem;
-				item.initChar("");
-				self.lstSelect.addChild(item);
+			for(let i = 0; i < test.answer.length; i++){
+				let item;
+				if(i < self.lstSelect.numItems)
+					item = self.lstSelect.getChildAt(i);
+				else{
+					item = fairygui.UIPackage.createObject("guess", "WordItem");				
+					self.lstSelect.addChild(item);
+				}
+				(item as WordItem).setChar("")
 			}	
 		}
 
