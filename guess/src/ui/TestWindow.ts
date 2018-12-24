@@ -1,5 +1,5 @@
 /**
- * 主游戏入口
+ * 答题界面
  */
 module guess {
 	export class TestWindow extends BaseWindow{
@@ -8,14 +8,17 @@ module guess {
 		private tip3:TipItem;
 		private tip4:TipItem;
 		private btnBack:fairygui.GButton;
+		private btnStage:fairygui.GButton;
 		private lstSelect:fairygui.GList;
 		private lstOption:fairygui.GList;
+		private isFillAnswer:boolean = false;
 	
 		// 释放
 		public dispose(): void {		
 			super.dispose();			
 			let self = this;
 			self.btnBack.removeClickListener(self.onBtnBack, self);
+			self.btnStage.removeClickListener(self.onBtnStage, self);
 			self.lstSelect.removeEventListener(fairygui.ItemEvent.CLICK, self.onSelectLstClick, self);
 			self.lstOption.removeEventListener(fairygui.ItemEvent.CLICK, self.onOptionLstClick, self);
 		}
@@ -45,6 +48,8 @@ module guess {
 			self.tip4 = self.contentPane.getChild("tip4") as TipItem;
 			self.btnBack = self.contentPane.getChild("btnBack").asButton;
 			self.btnBack.addClickListener(self.onBtnBack, self);
+			self.btnStage = self.contentPane.getChild("btnStage").asButton;
+			self.btnStage.addClickListener(self.onBtnStage, self);	
 			self.lstSelect = self.contentPane.getChild("lstSelect").asList;
 			self.lstOption = self.contentPane.getChild("lstOption").asList;
 			self.lstSelect.addEventListener(fairygui.ItemEvent.CLICK, self.onSelectLstClick, self);
@@ -66,10 +71,14 @@ module guess {
 					break; 
 				}
 			}
+
+			self.isFillAnswer = false;
 		}
 
 		private onOptionLstClick(e:fairygui.ItemEvent){
 			let self = this;
+			if(self.isFillAnswer)
+				return;
 			let word = e.itemObject as WordItem;
 			if(word.isEmpty())
 				return;
@@ -90,30 +99,27 @@ module guess {
 		private checkAnswer(){
 			let self = this;
 			let answer = "";
-			let isFill = true;
+			self.isFillAnswer = true;
 			for(let i = 0; i < self.lstSelect.numItems; i ++){
 				let item = self.lstSelect.getChildAt(i) as WordItem;
 				answer += item.char;
 				if(item.isEmpty()){
-					isFill = false;	
-					break; 
+					self.isFillAnswer = false;
+					break;
 				}
 			}
-			
-			if(isFill){
-				let isRight = utils.Singleton.get(GameMgr).testMgr.checkAnswer(answer);
-				if(isRight){
-					console.log("下一题");
-					self.nextTest();
-				}
-				else
-					console.log("答错了，但是别灰心~");
+
+			let isRight = utils.Singleton.get(GameMgr).testMgr.checkAnswer(answer);
+			if(isRight){
+				console.log("下一题");
+				self.nextTest();
 			}
+			else
+				console.log("答错了，但是别灰心~");
 		}
 
 		public onShown(){
 			let self = this;
-			self.setTest();
 		}
 
 		public nextTest(){
@@ -123,7 +129,7 @@ module guess {
 		}
 
 		public setTest(){
-			let self = this;		
+			let self = this;			
 			let test = utils.Singleton.get(GameMgr).testMgr.curTest;
 			if(!test){
 				self.tip1.initInfo("1", "猴赛雷~");
@@ -134,7 +140,8 @@ module guess {
 				self.lstSelect.numItems = 0;
 				return console.log("当前试题为空！");
 			}
-
+	
+			self.isFillAnswer = false;
 			self.tip1.initInfo("1", test.tips[0]);
 			self.tip2.initInfo("2", test.tips[1]);
 			self.tip3.initInfo("3", test.tips[2]);
@@ -167,6 +174,11 @@ module guess {
 		private onBtnBack(e){
 			let self = this;
 			self.hide();
+		}
+
+		private onBtnStage(e){
+			let self = this;
+			MainWindow.instance.showStageWindow();
 		}
 	}
 }
