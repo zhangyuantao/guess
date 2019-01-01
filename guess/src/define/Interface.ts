@@ -28,7 +28,8 @@ module guess {
 	export interface IGameData{
 		gold:number;
 		money:number;
-		curLevel:number;
+		reachLevel:number;
+		passLevels:number[];
 		toDayWatchAdCount:number;
 	}
 }

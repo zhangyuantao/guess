@@ -19,6 +19,7 @@
 		"bin-debug/logic/TestMgr.js",
 		"bin-debug/LoadingUI.js",
 		"bin-debug/ui/MainWindow.js",
+		"bin-debug/ui/ResultWindow.js",
 		"bin-debug/ui/StageItem.js",
 		"bin-debug/ui/StageWindow.js",
 		"bin-debug/ui/TestWindow.js",

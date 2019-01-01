@@ -11,6 +11,9 @@ module guess {
 		private btnStage:fairygui.GButton;
 		private lstSelect:fairygui.GList;
 		private lstOption:fairygui.GList;
+		private txtGold:fairygui.GTextField;
+		private resultWnd:ResultWindow;
+
 		private isFillAnswer:boolean = false;
 	
 		// 释放
@@ -46,6 +49,7 @@ module guess {
 			self.tip2 = self.contentPane.getChild("tip2") as TipItem;
 			self.tip3 = self.contentPane.getChild("tip3") as TipItem;
 			self.tip4 = self.contentPane.getChild("tip4") as TipItem;
+			self.txtGold = self.contentPane.getChild("goldComp").asCom.getChild("txtGold").asTextField;
 			self.btnBack = self.contentPane.getChild("btnBack").asButton;
 			self.btnBack.addClickListener(self.onBtnBack, self);
 			self.btnStage = self.contentPane.getChild("btnStage").asButton;
@@ -99,20 +103,33 @@ module guess {
 		private checkAnswer(){
 			let self = this;
 			let answer = "";
-			self.isFillAnswer = true;
+			//self.isFillAnswer = true;
 			for(let i = 0; i < self.lstSelect.numItems; i ++){
 				let item = self.lstSelect.getChildAt(i) as WordItem;
 				answer += item.char;
 				if(item.isEmpty()){
-					self.isFillAnswer = false;
-					break;
+					//self.isFillAnswer = false;
+					return;
 				}
 			}
 
-			let isRight = utils.Singleton.get(GameMgr).testMgr.checkAnswer(answer);
-			if(isRight){
-				console.log("下一题");
-				self.nextTest();
+			let gameMgr = utils.Singleton.get(GameMgr);
+			let isRight = gameMgr.testMgr.checkAnswer(answer);
+			if(isRight){				
+				// 首次答对加金币
+				if(gameMgr.isFirstPassLevel(gameMgr.testMgr.curTest.level)){
+					gameMgr.addGold(GameCfg.getCfg().TestRewardGold);
+				}
+
+				// 显示结果界面
+				if(!self.resultWnd)
+					self.resultWnd = new ResultWindow("guess");
+				self.resultWnd.show();
+				self.resultWnd.initData();
+
+				utils.EventDispatcher.getInstance().once("onNextTest", () => {
+					self.nextTest();
+				}, self);
 			}
 			else
 				console.log("答错了，但是别灰心~");
@@ -125,10 +142,16 @@ module guess {
 		public nextTest(){
 			let self = this;
 			utils.Singleton.get(GameMgr).nextTest();
-			self.setTest()
+			self.initData()
 		}
 
-		public setTest(){
+		public initData(){
+			let self = this;	
+			self.txtGold.text = `金币：${utils.Singleton.get(GameMgr).data.gold}`;	
+			self.initTest();
+		}
+
+		public initTest(){
 			let self = this;			
 			let test = utils.Singleton.get(GameMgr).testMgr.curTest;
 			if(!test){
@@ -140,7 +163,7 @@ module guess {
 				self.lstSelect.numItems = 0;
 				return console.log("当前试题为空！");
 			}
-	
+				
 			self.isFillAnswer = false;
 			self.tip1.initInfo("1", test.tips[0]);
 			self.tip2.initInfo("2", test.tips[1]);
@@ -168,7 +191,7 @@ module guess {
 					self.lstSelect.addChild(item);
 				}
 				(item as WordItem).setChar("")
-			}	
+			}			
 		}
 
 		private onBtnBack(e){

@@ -5,7 +5,7 @@ module guess {
 
 		public static getCfg():IGameCfg{
 			if(!GameCfg.cfg)			
-				GameCfg.cfg = RES.getRes('leapConfig_json');
+				GameCfg.cfg = RES.getRes('guessConfig_json');
 			return GameCfg.cfg;
 		}
 

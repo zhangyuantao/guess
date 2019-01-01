@@ -81,7 +81,7 @@ module guess {
 			if(!self.testWnd)
 				self.testWnd = new TestWindow("guess");
 			self.testWnd.show();
-			self.testWnd.setTest();
+			self.testWnd.initData();
 		}
 	}
 }

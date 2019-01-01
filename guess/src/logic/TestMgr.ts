@@ -27,7 +27,8 @@ module guess {
 			let self = this;
 			if(!self.curTest)
 				return false;			
-			return answer === self.curTest.answer;
+			let right = answer === self.curTest.answer;
+			return right;
 		}		
 	}
 }

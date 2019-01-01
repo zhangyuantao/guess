@@ -52,6 +52,9 @@ module guess {
 		private onLevelLstClick(e:fairygui.ItemEvent){
 			let self = this;
 			let item = e.itemObject as StageItem;
+			if(!utils.Singleton.get(GameMgr).canStartLevel(item.level)){
+				return console.log("请先通过上一关！");
+			}
 			utils.EventDispatcher.getInstance().dispatchEvent("startStage", item.level);
 			self.hide();
 		}
@@ -85,7 +88,7 @@ module guess {
 		public initData(reset?:boolean){			
 			let self = this;
 			if(reset) self.pageIdx = 0;
-			let pageIdx = self.pageIdx || Math.floor(utils.Singleton.get(GameMgr).getCurLevel() / 20);
+			let pageIdx = self.pageIdx || Math.floor(utils.Singleton.get(GameMgr).getReachMaxLevel() / 20);
 			let firstLv = pageIdx * 20 + 1;
 			for(let i = 0, len = self.lstLevel.numItems; i < len; i++){
 				let item = self.lstLevel.getChildAt(i) as StageItem
