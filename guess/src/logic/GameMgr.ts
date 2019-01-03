@@ -75,5 +75,12 @@ module guess {
 				return;
 			self.data.gold += count;
 		}
+
+		public addMoney(count:number){
+			let self = this;
+			if(!count || count <= 0)
+				return;
+			self.data.money += count;
+		}
 	}
 }

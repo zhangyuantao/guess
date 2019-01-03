@@ -62,7 +62,6 @@ module guess {
 
 		private onBtnInv(e){
 			let self = this;
-			MainWindow.instance.showStageWindow();
 		}
 	}
 }

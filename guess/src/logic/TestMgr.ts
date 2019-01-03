@@ -6,11 +6,9 @@ module guess {
 		public curTest:ITestInfo;
 
 		public constructor(){
-
 		}
 
 		public dispose(){
-
 		}
 
 		public setCurTest(lv:number){

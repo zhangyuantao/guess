@@ -18,6 +18,7 @@ module guess {
 
 	export interface ITestInfo{
 		level:number;
+		type:string;
 		money:number,
 		tipCount:number,
 		tips:string[];

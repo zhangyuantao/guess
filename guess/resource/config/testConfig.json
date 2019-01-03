@@ -1,7 +1,8 @@
 [
     {
         "level":1,
-        "money":0,
+        "type":"people",
+        "money":0.5,
         "tipCount":3,
         "tips":[
             "唐代著名诗人",
@@ -14,7 +15,8 @@
     },
     {
         "level":2,
-        "money":0,
+        "type":"people",
+        "money":0.1,
         "tipCount":3,
         "tips":[
             "A",
@@ -27,13 +29,26 @@
     },
     {
         "level":3,
+        "type":"dengmi",
         "money":0.5,
         "tipCount":3,
         "tips":[
             "1",
             "2B",
-            "3",
-            "45"
+            "3"
+        ],
+        "answer":"45",
+        "option":"1,2,3,4,5,6,7,8,9,10,11,12"
+    },
+    {
+        "level":4,
+        "type":"dengmi",
+        "money":0.5,
+        "tipCount":3,
+        "tips":[
+            "灯谜1",
+            "打一字",
+            "竹篮打水一场空"
         ],
         "answer":"45",
         "option":"1,2,3,4,5,6,7,8,9,10,11,12"

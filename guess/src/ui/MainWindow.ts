@@ -6,8 +6,10 @@ module guess {
 		public static instance:MainWindow;
 		public testWnd:TestWindow;
 		public stageWnd:StageWindow;
+		public redbag:RedBagWindow;
 		private btnStart:fairygui.GButton;
 		private btnStage:fairygui.GButton;
+		private btnRedBag:fairygui.GButton;
 
 		constructor(pkgName:string, windowName?:string){
 			super(pkgName, windowName);
@@ -19,6 +21,7 @@ module guess {
 			let self = this;
 			self.btnStart.removeClickListener(self.onBtnStart, self);
 			self.btnStage.removeClickListener(self.onBtnStage, self);
+			self.btnRedBag.removeClickListener(self.onBtnRedBag, self);
 			utils.EventDispatcher.getInstance().removeEventListener("startStage", self.onStartStage, self);
 		}
 
@@ -45,6 +48,8 @@ module guess {
 			self.btnStart.addClickListener(self.onBtnStart, self);	
 			self.btnStage = self.contentPane.getChild("btnStage").asButton;
 			self.btnStage.addClickListener(self.onBtnStage, self);	
+			self.btnRedBag = self.contentPane.getChild("btnRedBag").asButton;
+			self.btnRedBag.addClickListener(self.onBtnRedBag, self);	
 		}	
 		
 		private onBtnStart(e){
@@ -55,6 +60,11 @@ module guess {
 		private onBtnStage(e){
 			let self = this;
 			self.showStageWindow();
+		}
+
+		private onBtnRedBag(e){
+			let self = this;
+			self.showRedBagWindow();
 		}
 
 		public showStageWindow(){
@@ -82,6 +92,14 @@ module guess {
 				self.testWnd = new TestWindow("guess");
 			self.testWnd.show();
 			self.testWnd.initData();
+		}
+
+		public showRedBagWindow(){
+			let self = this;
+			if(!self.redbag)
+				self.redbag = new RedBagWindow("guess");
+			self.redbag.show();
+			self.redbag.initData();
 		}
 	}
 }
