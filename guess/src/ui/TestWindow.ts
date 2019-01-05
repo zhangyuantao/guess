@@ -9,6 +9,7 @@ module guess {
 		private btnBack:fairygui.GButton;
 		private btnStage:fairygui.GButton;
 		private btnRedBag:fairygui.GButton;
+		private btnUnlock:fairygui.GButton;
 		private lstSelect:fairygui.GList;
 		private lstOption:fairygui.GList;
 		private txtGold:fairygui.GTextField;
@@ -24,8 +25,10 @@ module guess {
 			self.btnBack.removeClickListener(self.onBtnBack, self);
 			self.btnStage.removeClickListener(self.onBtnStage, self);
 			self.btnRedBag.removeClickListener(self.onBtnRedBag, self);
+			self.btnUnlock.removeClickListener(self.onBtnUnlock, self);
 			self.lstSelect.removeEventListener(fairygui.ItemEvent.CLICK, self.onSelectLstClick, self);
 			self.lstOption.removeEventListener(fairygui.ItemEvent.CLICK, self.onOptionLstClick, self);
+			utils.EventDispatcher.getInstance().removeEventListener("goldChanged", self.refreshGold, self);
 		}
 
 		protected initUI(){
@@ -40,6 +43,7 @@ module guess {
 			let self = this;
 			self.registerComponent("TipItem", TipItem, "guess");
 			self.registerComponent("WordItem", WordItem, "guess");
+			self.registerComponent("WordItemSmall", WordItemSmall, "guess");
 			self.registerComponent("QuestionPanel", QuestionPanel, "guess");
 			self.registerComponent("QuestionPanelDM", QuestionPanelDM, "guess");
 		}
@@ -50,19 +54,27 @@ module guess {
         protected onInit(){	
 			let self = this;
 			self.typeCtrl = self.contentPane.getController("typeCtrl");
+
 			self.questionPanel = self.contentPane.getChild("questionPanel") as QuestionPanel;
 			self.questionPanelDM = self.contentPane.getChild("questionPanelDM") as QuestionPanelDM;
+
 			self.txtGold = self.contentPane.getChild("goldComp").asCom.getChild("txtGold").asTextField;
+
 			self.btnBack = self.contentPane.getChild("btnBack").asButton;
-			self.btnBack.addClickListener(self.onBtnBack, self);
 			self.btnStage = self.contentPane.getChild("btnStage").asButton;
-			self.btnStage.addClickListener(self.onBtnStage, self);
 			self.btnRedBag = self.contentPane.getChild("btnRedBag").asButton;
+			self.btnUnlock = self.contentPane.getChild("btnUnlock").asButton;
+			self.btnBack.addClickListener(self.onBtnBack, self);
+			self.btnStage.addClickListener(self.onBtnStage, self);
 			self.btnRedBag.addClickListener(self.onBtnRedBag, self);
+			self.btnUnlock.addClickListener(self.onBtnUnlock, self);
+
 			self.lstSelect = self.contentPane.getChild("lstSelect").asList;
 			self.lstOption = self.contentPane.getChild("lstOption").asList;
 			self.lstSelect.addEventListener(fairygui.ItemEvent.CLICK, self.onSelectLstClick, self);
 			self.lstOption.addEventListener(fairygui.ItemEvent.CLICK, self.onOptionLstClick, self);
+			utils.EventDispatcher.getInstance().addEventListener("goldChanged", self.refreshGold, self);
+
 			self.wrongTip = self.contentPane.getChild("wrongTip").asCom;
 		}
 
@@ -71,12 +83,12 @@ module guess {
 			let word = e.itemObject as WordItem;
 			if(word.isEmpty())
 				return;
-			let tmp = word.char;
+			let tmp = word.word;
 			word.setChar("");
 
 			for(let i = 0; i < self.lstOption.numItems; i ++){
 				let item = self.lstOption.getChildAt(i) as WordItem;
-				if(item.char === tmp){
+				if(item.word === tmp){
 					item.setChar(tmp);
 					break; 
 				}
@@ -97,7 +109,7 @@ module guess {
 			for(let i = 0; i < self.lstSelect.numItems; i ++){
 				let item = self.lstSelect.getChildAt(i) as WordItem;
 				if(item.isEmpty()){
-					item.setChar(word.char);					
+					item.setChar(word.word);					
 					break; 
 				}
 			}
@@ -112,7 +124,7 @@ module guess {
 			self.isFillAnswer = true;
 			for(let i = 0; i < self.lstSelect.numItems; i ++){
 				let item = self.lstSelect.getChildAt(i) as WordItem;
-				answer += item.char;
+				answer += item.word;
 				if(item.isEmpty()){
 					self.isFillAnswer = false;
 					return;
@@ -124,10 +136,10 @@ module guess {
 			if(isRight){				
 				// 首次答对加金币/红包
 				if(gameMgr.isFirstPassLevel(gameMgr.testMgr.curTest.level)){
-					gameMgr.addGold(GameCfg.getCfg().TestRewardGold);
+					gameMgr.modifyGold(GameCfg.getCfg().TestRewardGold);
 
 					// 红包
-					gameMgr.addMoney(gameMgr.testMgr.curTest.money);
+					gameMgr.modifyMoney(gameMgr.testMgr.curTest.money);
 				}
 
 				// 显示结果界面
@@ -161,7 +173,7 @@ module guess {
 
 		public initData(){
 			let self = this;	
-			self.txtGold.text = `金币：${utils.Singleton.get(GameMgr).data.gold}`;	
+			self.refreshGold();	
 			
 			let testInfo = utils.Singleton.get(GameMgr).testMgr.curTest;			
 			self.questionPanel.initTest(testInfo);
@@ -172,38 +184,31 @@ module guess {
 			if(testInfo)		
 				self.typeCtrl.setSelectedIndex(testInfo.type == "people" ? 0 : 1);
 		}
+		
+		public refreshGold(){
+			let self = this;	
+			self.txtGold.text = `金币：${utils.Singleton.get(GameMgr).data.gold}`;
+		}
 
 		public initTest(test:ITestInfo){
 			let self = this;			
-			if(!test){	
-				self.lstOption.numItems = 0;
-				self.lstSelect.numItems = 0;
-				return;
-			}
-				
+			if(!test)
+				return;				
+
+			self.lstOption.removeChildrenToPool(0, self.lstOption.numItems - 1);
+			self.lstSelect.removeChildrenToPool(0, self.lstSelect.numItems - 1);
+			
 			self.isFillAnswer = false;
 
 			let ops = test.option.split(",");
 			for(let i = 0, len = ops.length; i < len; i++){
-				let item;
-				if(i < self.lstOption.numItems)
-					item = self.lstOption.getChildAt(i);
-				else{
-					item = fairygui.UIPackage.createObject("guess", "WordItem");				
-					self.lstOption.addChild(item);
-				}
-				(item as WordItem).setChar(ops[i])
+				let item = self.lstOption.addItemFromPool(fairygui.UIPackage.getItemURL("guess", "WordItem")) as WordItem;
+				item.setChar(ops[i])
 			}			
 
 			for(let i = 0; i < test.answer.length; i++){
-				let item;
-				if(i < self.lstSelect.numItems)
-					item = self.lstSelect.getChildAt(i);
-				else{
-					item = fairygui.UIPackage.createObject("guess", "WordItem");				
-					self.lstSelect.addChild(item);
-				}
-				(item as WordItem).setChar("")
+				let item = self.lstSelect.addItemFromPool(fairygui.UIPackage.getItemURL("guess", "WordItemSmall")) as WordItem;
+				item.setChar("")
 			}			
 		}
 
@@ -220,6 +225,28 @@ module guess {
 		private onBtnRedBag(e){
 			let self = this;
 			MainWindow.instance.showRedBagWindow();
+		}
+
+		private onBtnUnlock(e){
+			let self = this;
+			let curTest = utils.Singleton.get(GameMgr).testMgr.curTest;
+			if(!curTest)
+				return;
+			
+			// 扣金币
+			let cost = GameCfg.getCfg().UnlockAnswerCost;
+			if(!utils.Singleton.get(GameMgr).checkGoldEnough(cost))
+				return console.log("金币不足！");
+
+			utils.Singleton.get(GameMgr).costGold(cost);
+
+			// 提示答案
+			let answer = utils.Singleton.get(GameMgr).testMgr.curTest.answer;
+			for(let i = 0, len = self.lstOption.numItems; i < len; i++){
+				let item = self.lstOption.getChildAt(i) as WordItem;
+				if(answer.indexOf(item.word) != -1)
+					item.showColorAni();
+			}		
 		}
 	}
 }

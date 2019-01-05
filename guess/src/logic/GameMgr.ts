@@ -69,18 +69,33 @@ module guess {
 			return curMaxLv + 1;
 		}
 
-		public addGold(count:number){
+		public modifyGold(count:number){
+			let self = this;
+			count = count || 0;
+			self.data.gold += count;
+			utils.EventDispatcher.getInstance().dispatchEvent("goldChanged");
+		}	
+
+		public costGold(count:number){
 			let self = this;
 			if(count <= 0)
+				return;			
+			if(self.data.gold < count)
 				return;
-			self.data.gold += count;
+			
+			self.modifyGold(-count);
 		}
 
-		public addMoney(count:number){
+		public checkGoldEnough(count:number){
 			let self = this;
-			if(!count || count <= 0)
-				return;
+			return self.data.gold >= count;
+		}
+
+		public modifyMoney(count:number){
+			let self = this;
+			count = count || 0;
 			self.data.money += count;
+			utils.EventDispatcher.getInstance().dispatchEvent("moneyChanged");
 		}
 	}
 }

@@ -11,8 +11,8 @@
 	],
 	"game": [
 		"bin-debug/ui/BaseWindow.js",
+		"bin-debug/ui/WordItem.js",
 		"bin-debug/ui/QuestionPanel.js",
-		"bin-debug/Main.js",
 		"bin-debug/Platform.js",
 		"bin-debug/define/Interface.js",
 		"bin-debug/logic/GameMgr.js",
@@ -27,6 +27,7 @@
 		"bin-debug/ui/StageWindow.js",
 		"bin-debug/ui/TestWindow.js",
 		"bin-debug/ui/TipItem.js",
-		"bin-debug/ui/WordItem.js"
+		"bin-debug/Main.js",
+		"bin-debug/ui/WordItemSmall.js"
 	]
 }
