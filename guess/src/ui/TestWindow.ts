@@ -3,7 +3,9 @@
  */
 module guess {
 	export class TestWindow extends BaseWindow{
-		private questionPanel:QuestionPanel;	
+		private typeCtrl:fairygui.Controller;
+		private questionPanel:QuestionPanel;
+		private questionPanelDM:QuestionPanelDM;
 		private btnBack:fairygui.GButton;
 		private btnStage:fairygui.GButton;
 		private btnRedBag:fairygui.GButton;
@@ -39,6 +41,7 @@ module guess {
 			self.registerComponent("TipItem", TipItem, "guess");
 			self.registerComponent("WordItem", WordItem, "guess");
 			self.registerComponent("QuestionPanel", QuestionPanel, "guess");
+			self.registerComponent("QuestionPanelDM", QuestionPanelDM, "guess");
 		}
 
 		/**
@@ -46,7 +49,9 @@ module guess {
 		 */
         protected onInit(){	
 			let self = this;
-			self.questionPanel = self.contentPane.getChild("questionPanel") as QuestionPanel;		
+			self.typeCtrl = self.contentPane.getController("typeCtrl");
+			self.questionPanel = self.contentPane.getChild("questionPanel") as QuestionPanel;
+			self.questionPanelDM = self.contentPane.getChild("questionPanelDM") as QuestionPanelDM;
 			self.txtGold = self.contentPane.getChild("goldComp").asCom.getChild("txtGold").asTextField;
 			self.btnBack = self.contentPane.getChild("btnBack").asButton;
 			self.btnBack.addClickListener(self.onBtnBack, self);
@@ -157,13 +162,19 @@ module guess {
 		public initData(){
 			let self = this;	
 			self.txtGold.text = `金币：${utils.Singleton.get(GameMgr).data.gold}`;	
-			self.initTest();
-			self.questionPanel.initTest();
+			
+			let testInfo = utils.Singleton.get(GameMgr).testMgr.curTest;			
+			self.questionPanel.initTest(testInfo);
+			self.questionPanelDM.initTest(testInfo);
+			self.initTest(testInfo);
+
+			// 不同题目类型显示控制
+			if(testInfo)		
+				self.typeCtrl.setSelectedIndex(testInfo.type == "people" ? 0 : 1);
 		}
 
-		public initTest(){
+		public initTest(test:ITestInfo){
 			let self = this;			
-			let test = utils.Singleton.get(GameMgr).testMgr.curTest;
 			if(!test){	
 				self.lstOption.numItems = 0;
 				self.lstSelect.numItems = 0;

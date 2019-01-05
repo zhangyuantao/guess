@@ -10,7 +10,7 @@ module guess {
 			self.txtDesc = self.getChild("txtDesc").asTextField;
 		}
 
-		public initInfo(id:string, desc:string){
+		public initInfo(id:string, desc:string = ""){
 			let self = this;
 			self.txtId.text = id;
 			self.txtDesc.text = desc;
