@@ -3,7 +3,7 @@
  */
 module guess {
 	export class TestWindow extends BaseWindow{
-		private typeCtrl:fairygui.Controller;
+		private themCtrl:fairygui.Controller;
 		private questionPanel:QuestionPanel;
 		private questionPanelDM:QuestionPanelDM;
 		private btnBack:fairygui.GButton;
@@ -14,6 +14,7 @@ module guess {
 		private lstOption:fairygui.GList;
 		private txtGold:fairygui.GTextField;
 		private resultWnd:ResultWindow;
+		private getRedBagWnd:GetRedBagWindow;
 		private wrongTip:fairygui.GComponent;
 
 		private isFillAnswer:boolean = false;
@@ -53,7 +54,7 @@ module guess {
 		 */
         protected onInit(){	
 			let self = this;
-			self.typeCtrl = self.contentPane.getController("typeCtrl");
+			self.themCtrl = self.contentPane.getController("themCtrl");
 
 			self.questionPanel = self.contentPane.getChild("questionPanel") as QuestionPanel;
 			self.questionPanelDM = self.contentPane.getChild("questionPanelDM") as QuestionPanelDM;
@@ -148,6 +149,14 @@ module guess {
 				self.resultWnd.show();
 				self.resultWnd.initData();
 
+				// 显示获得红包
+				if(gameMgr.testMgr.curTest.money > 0){
+					if(!self.getRedBagWnd)
+						self.getRedBagWnd = new GetRedBagWindow("guess");
+					self.getRedBagWnd.show();
+					self.getRedBagWnd.initData(gameMgr.testMgr.curTest.money);
+				}
+
 				utils.EventDispatcher.getInstance().once("onNextTest", () => {
 					self.nextTest();
 				}, self);
@@ -182,7 +191,7 @@ module guess {
 
 			// 不同题目类型显示控制
 			if(testInfo)		
-				self.typeCtrl.setSelectedIndex(testInfo.type == "people" ? 0 : 1);
+				self.themCtrl.setSelectedIndex(testInfo.type == "people" ? 0 : 1);
 		}
 		
 		public refreshGold(){
@@ -191,13 +200,13 @@ module guess {
 		}
 
 		public initTest(test:ITestInfo){
-			let self = this;			
-			if(!test)
-				return;				
-
+			let self = this;
 			self.lstOption.removeChildrenToPool(0, self.lstOption.numItems - 1);
 			self.lstSelect.removeChildrenToPool(0, self.lstSelect.numItems - 1);
-			
+						
+			if(!test)
+				return;
+
 			self.isFillAnswer = false;
 
 			let ops = test.option.split(",");

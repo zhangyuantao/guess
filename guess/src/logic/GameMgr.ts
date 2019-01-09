@@ -97,5 +97,53 @@ module guess {
 			self.data.money += count;
 			utils.EventDispatcher.getInstance().dispatchEvent("moneyChanged");
 		}
+
+		// 转盘抽奖
+		public draw():ILotteryItemInfo{
+			let self = this;
+
+			// TODO 判断每日抽奖上限
+
+			return self.drawOnce();
+		}
+
+		// 抽一次
+		private drawOnce():ILotteryItemInfo{
+			let items = GameCfg.getCfg().LotteryCfg;
+			let totalWeight = 0;
+			for(let i = 0; i < items.length; i++)
+				totalWeight += items[i].weight;
+			let rand = Math.random() * totalWeight;
+
+			let result;
+			for(let i = 0; i < items.length; i++){
+				let info = items[i];
+				if(info.weight <= 0)
+					continue;
+				if(rand <= info.weight){
+					result = info;
+					break;
+				}
+				rand -= info.weight;
+			}
+
+			return result;
+		}
+
+		public drawTest(testCount:number){
+			let self = this;
+			let results = <any>{};
+			for(let i = 0; i < testCount; i++){
+				let tmp = self.drawOnce();
+				if(results[tmp.idx]) results[tmp.idx]++;
+				else results[tmp.idx] = 1;
+			}
+			
+			console.log(`抽奖${testCount}次的结果如下:`);
+			for(let i = 0; i < GameCfg.getCfg().LotteryCfg.length; i++){
+				if(results[i] )
+					console.log(`奖品${i}:${results[i] || 0}次`);
+			}
+		}
 	}
 }

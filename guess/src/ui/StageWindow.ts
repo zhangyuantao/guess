@@ -59,10 +59,6 @@ module guess {
 			self.hide();
 		}
 
-		public onShown(){
-			let self = this;
-		}
-
 		public prePage(){
 			let self = this;
 			self.btnNext.enabled = true;
@@ -88,13 +84,38 @@ module guess {
 		public initData(reset?:boolean){			
 			let self = this;
 			if(reset) self.pageIdx = 0;
-			let pageIdx = self.pageIdx || Math.floor(utils.Singleton.get(GameMgr).getReachMaxLevel() / 20);
+			let maxLv = utils.Singleton.get(GameMgr).getReachMaxLevel();
+			let pageIdx = self.pageIdx || Math.floor(maxLv / 20);
 			let firstLv = pageIdx * 20 + 1;
 			for(let i = 0, len = self.lstLevel.numItems; i < len; i++){
 				let item = self.lstLevel.getChildAt(i) as StageItem
 				item.initInfo(firstLv);
 				firstLv++;
 			}
+
+			self.txtRank.text = self.getRankDesc(maxLv);
+		}
+
+		private getRankDesc(reachLv:number){
+			let self = this;
+			let stage = reachLv / 40; // 40关一个段位
+			
+			// 大段位名
+			let stageName = "小学生";
+			if(stage > 1)
+				stageName = "中等生";
+			if(stage > 2)
+				stageName = "优等生";
+			if(stage > 3)
+				stageName = "学霸";
+			if(stage > 4)
+				stageName = "超级学霸";		
+
+			// 小段位星数 10关一个小等级
+			let star = Math.ceil((reachLv % 40) / 10);
+			
+			let desc = `${stageName}${star}星`;
+			return desc;
 		}
 
 		private onBtnClose(e){

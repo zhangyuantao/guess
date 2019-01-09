@@ -14,6 +14,7 @@ module guess {
 		LevelsOfSubstage:number;			// 每一小段位需要多少关卡
 		StageNames:string[];				// 段位名
 		DayDrawLotteryMax:number;			// 每日抽奖次数上限
+		LotteryCfg:ILotteryItemInfo[];					// 转盘抽奖配置
 	}
 
 	export interface ITestInfo{
@@ -32,5 +33,11 @@ module guess {
 		reachLevel:number;
 		passLevels:number[];
 		toDayWatchAdCount:number;
+	}
+
+	export interface ILotteryItemInfo{
+		idx:number; 	// 轮盘位置索引
+		gifts:any;		// 奖励
+		weight:number;	// 权重
 	}
 }
