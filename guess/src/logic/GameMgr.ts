@@ -72,6 +72,7 @@ module guess {
 		public modifyGold(count:number){
 			let self = this;
 			count = count || 0;
+			if(count <= 0)	return;
 			self.data.gold += count;
 			utils.EventDispatcher.getInstance().dispatchEvent("goldChanged");
 		}	
@@ -94,6 +95,7 @@ module guess {
 		public modifyMoney(count:number){
 			let self = this;
 			count = count || 0;
+			if(count <= 0)	return;
 			self.data.money += count;
 			utils.EventDispatcher.getInstance().dispatchEvent("moneyChanged");
 		}

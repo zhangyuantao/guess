@@ -63,21 +63,13 @@ module guess {
 			let self = this;
 			self.btnNext.enabled = true;
 			self.pageIdx--;
-			if(self.pageIdx < 0){
-				self.pageIdx = 0;
-				self.btnPre.enabled = false;
-			}
 			self.initData();
 		}
 
 		public nextPage(){
 			let self = this;
 			self.btnPre.enabled = true;
-			self.pageIdx++;
-			if(self.pageIdx > 9){
-				self.pageIdx = 9;
-				self.btnNext.enabled = false;
-			}
+			self.pageIdx++;			
 			self.initData()
 		}
 
@@ -86,14 +78,27 @@ module guess {
 			if(reset) self.pageIdx = 0;
 			let maxLv = utils.Singleton.get(GameMgr).getReachMaxLevel();
 			let pageIdx = self.pageIdx || Math.floor(maxLv / 20);
-			let firstLv = pageIdx * 20 + 1;
+			let level = pageIdx * 20 + 1;
 			for(let i = 0, len = self.lstLevel.numItems; i < len; i++){
 				let item = self.lstLevel.getChildAt(i) as StageItem
-				item.initInfo(firstLv);
-				firstLv++;
+				item.initInfo(level, level > maxLv);
+				level++;
 			}
 
 			self.txtRank.text = self.getRankDesc(maxLv);
+			self.setPageBtnState();
+		}
+
+		private setPageBtnState(){
+			let self = this;
+			if(self.pageIdx <= 0){
+				self.pageIdx = 0;
+				self.btnPre.enabled = false;
+			}
+			if(self.pageIdx >= 9){
+				self.pageIdx = 9;
+				self.btnNext.enabled = false;
+			}
 		}
 
 		private getRankDesc(reachLv:number){

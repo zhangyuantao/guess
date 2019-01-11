@@ -13,8 +13,8 @@ module guess {
 		private lstSelect:fairygui.GList;
 		private lstOption:fairygui.GList;
 		private txtGold:fairygui.GTextField;
+		private txtLevel:fairygui.GTextField;
 		private resultWnd:ResultWindow;
-		private getRedBagWnd:GetRedBagWindow;
 		private wrongTip:fairygui.GComponent;
 
 		private isFillAnswer:boolean = false;
@@ -77,6 +77,7 @@ module guess {
 			utils.EventDispatcher.getInstance().addEventListener("goldChanged", self.refreshGold, self);
 
 			self.wrongTip = self.contentPane.getChild("wrongTip").asCom;
+			self.txtLevel = self.contentPane.getChild("txtLevel").asTextField;
 		}
 
 		private onSelectLstClick(e:fairygui.ItemEvent){
@@ -136,8 +137,10 @@ module guess {
 			let isRight = gameMgr.testMgr.checkAnswer(answer);
 			if(isRight){				
 				// 首次答对加金币/红包
+				let gainGold = 0;
 				if(gameMgr.isFirstPassLevel(gameMgr.testMgr.curTest.level)){
-					gameMgr.modifyGold(GameCfg.getCfg().TestRewardGold);
+					gainGold = GameCfg.getCfg().TestRewardGold;
+					gameMgr.modifyGold(gainGold);
 
 					// 红包
 					gameMgr.modifyMoney(gameMgr.testMgr.curTest.money);
@@ -147,14 +150,11 @@ module guess {
 				if(!self.resultWnd)
 					self.resultWnd = new ResultWindow("guess");
 				self.resultWnd.show();
-				self.resultWnd.initData();
+				self.resultWnd.initData(gainGold);
 
 				// 显示获得红包
-				if(gameMgr.testMgr.curTest.money > 0){
-					if(!self.getRedBagWnd)
-						self.getRedBagWnd = new GetRedBagWindow("guess");
-					self.getRedBagWnd.show();
-					self.getRedBagWnd.initData(gameMgr.testMgr.curTest.money);
+				if(gameMgr.testMgr.curTest.money > 0){					
+					MainWindow.instance.showRedBagWindow(gameMgr.testMgr.curTest.money, "恭喜您获得红包");
 				}
 
 				utils.EventDispatcher.getInstance().once("onNextTest", () => {
@@ -183,11 +183,12 @@ module guess {
 		public initData(){
 			let self = this;	
 			self.refreshGold();	
-			
 			let testInfo = utils.Singleton.get(GameMgr).testMgr.curTest;			
 			self.questionPanel.initTest(testInfo);
 			self.questionPanelDM.initTest(testInfo);
 			self.initTest(testInfo);
+
+			self.txtLevel.text = testInfo ? `第 ${testInfo.level} 关` : "没有题目";
 
 			// 不同题目类型显示控制
 			if(testInfo)		

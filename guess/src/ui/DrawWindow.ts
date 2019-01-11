@@ -52,6 +52,10 @@ module guess {
 			let item = utils.Singleton.get(GameMgr).draw();
 			console.log(`恭喜，抽到：${item.gifts.money ? '红包' : '金币'} x${item.gifts.money || item.gifts.gold}`);
 
+			// 获得奖励
+			utils.Singleton.get(GameMgr).modifyGold(item.gifts.gold);
+			utils.Singleton.get(GameMgr).modifyMoney(item.gifts.money);
+
 			let itemCount = GameCfg.getCfg().LotteryCfg.length;
 			let pieceAngle = 360 / itemCount;
 			let offsetAngle = 5; // 为了不贴边界

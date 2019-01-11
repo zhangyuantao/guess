@@ -104,12 +104,12 @@ module guess {
 			self.testWnd.initData();
 		}
 
-		public showRedBagWindow(){
+		public showRedBagWindow(money?:number, title?:string){
 			let self = this;
 			if(!self.redbag)
 				self.redbag = new RedBagWindow("guess");
-			self.redbag.show();
-			self.redbag.initData();
+			self.redbag.show();		
+			self.redbag.initData(money || utils.Singleton.get(GameMgr).data.money, title || "您当前共有红包");
 		}
 
 		public showDrawWindow(){
