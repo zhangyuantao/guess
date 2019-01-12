@@ -14,7 +14,8 @@ module guess {
 		LevelsOfSubstage:number;			// 每一小段位需要多少关卡
 		StageNames:string[];				// 段位名
 		DayDrawLotteryMax:number;			// 每日抽奖次数上限
-		LotteryCfg:ILotteryItemInfo[];					// 转盘抽奖配置
+		FirstShareGroupGold:number;			// 首次分享到群获得金币
+		LotteryCfg:ILotteryItemInfo[];		// 转盘抽奖配置
 	}
 
 	export interface ITestInfo{

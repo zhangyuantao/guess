@@ -12,15 +12,19 @@
 	"game": [
 		"bin-debug/ui/BaseWindow.js",
 		"bin-debug/ui/WordItem.js",
-		"bin-debug/ui/QuestionPanel.js",
+		"bin-debug/ui/LackGoldWindow.js",
+		"bin-debug/Main.js",
 		"bin-debug/Platform.js",
 		"bin-debug/define/Interface.js",
 		"bin-debug/logic/GameMgr.js",
 		"bin-debug/logic/TestMgr.js",
-		"bin-debug/GameCfg.js",
+		"bin-debug/AdMgr.js",
+		"bin-debug/ui/CashWindow.js",
 		"bin-debug/ui/DrawWindow.js",
+		"bin-debug/ui/FirstShareGroupWindow.js",
+		"bin-debug/GameCfg.js",
 		"bin-debug/ui/MainWindow.js",
-		"bin-debug/LoadingUI.js",
+		"bin-debug/ui/QuestionPanel.js",
 		"bin-debug/ui/QuestionPanelDM.js",
 		"bin-debug/ui/RedBagWindow.js",
 		"bin-debug/ui/ResultWindow.js",
@@ -28,7 +32,7 @@
 		"bin-debug/ui/StageWindow.js",
 		"bin-debug/ui/TestWindow.js",
 		"bin-debug/ui/TipItem.js",
-		"bin-debug/Main.js",
+		"bin-debug/LoadingUI.js",
 		"bin-debug/ui/WordItemSmall.js"
 	]
 }

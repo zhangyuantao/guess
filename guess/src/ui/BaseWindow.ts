@@ -3,7 +3,7 @@
  */
 module guess {
 	export class BaseWindow extends fairygui.Window {
-		public constructor(pkgName:string, windowName?:string) {
+		public constructor(pkgName:string = "guess", windowName?:string) {
 			super();		
 			let self = this;		
 			self.registerComponents();  		// 要在窗体创建(initUI)之前

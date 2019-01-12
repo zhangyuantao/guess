@@ -1,7 +1,7 @@
 [
     {
         "level":1,
-        "type":"people",
+        "type":"dengmi",
         "money":0.5,
         "tipCount":3,
         "tips":[
@@ -15,7 +15,7 @@
     },
     {
         "level":2,
-        "type":"people",
+        "type":"dengmi",
         "money":0.1,
         "tipCount":3,
         "tips":[

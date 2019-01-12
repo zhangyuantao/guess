@@ -13,6 +13,7 @@
     "StageNames":["小学生","中学生","优等生","学霸","超级学霸"],
     "DayDrawLotteryMax":1,
     "DrawGetMoneyMax":4,
+    "FirstShareGroupGold":100,
     "LotteryCfg":[ 
         {"idx":0, "gifts":{"money":0.02}, "weight": 10},
         {"idx":1, "gifts":{"gold":1},     "weight": 1000000},

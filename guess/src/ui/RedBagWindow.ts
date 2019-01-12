@@ -9,6 +9,7 @@ module guess {
 		private btnContact:fairygui.GButton;
 		private btnClose:fairygui.GButton;
 		private btnDraw:fairygui.GButton;
+		private cashWnd:CashWindow;
 	
 		// 释放
 		public dispose(): void {		
@@ -51,7 +52,10 @@ module guess {
 
 		private onContaceClick(e:fairygui.ItemEvent){
 			let self = this;
-			console.log("联系提现");
+			if(!self.cashWnd)
+				self.cashWnd = new CashWindow();
+			self.cashWnd.show();
+			self.cashWnd.initData();
 		}
 
 		public initData(money:number, title:string){

@@ -3,7 +3,7 @@
  */
 module guess {
 	export class TestWindow extends BaseWindow{
-		private themCtrl:fairygui.Controller;
+		//private themCtrl:fairygui.Controller;
 		private questionPanel:QuestionPanel;
 		private questionPanelDM:QuestionPanelDM;
 		private btnBack:fairygui.GButton;
@@ -12,9 +12,11 @@ module guess {
 		private btnUnlock:fairygui.GButton;
 		private lstSelect:fairygui.GList;
 		private lstOption:fairygui.GList;
+		private goldComp:fairygui.GComponent;
 		private txtGold:fairygui.GTextField;
 		private txtLevel:fairygui.GTextField;
 		private resultWnd:ResultWindow;
+		private lackWnd:LackGoldWindow;
 		private wrongTip:fairygui.GComponent;
 
 		private isFillAnswer:boolean = false;
@@ -29,6 +31,7 @@ module guess {
 			self.btnUnlock.removeClickListener(self.onBtnUnlock, self);
 			self.lstSelect.removeEventListener(fairygui.ItemEvent.CLICK, self.onSelectLstClick, self);
 			self.lstOption.removeEventListener(fairygui.ItemEvent.CLICK, self.onOptionLstClick, self);
+			self.goldComp.removeClickListener(self.onClickGold, self);
 			utils.EventDispatcher.getInstance().removeEventListener("goldChanged", self.refreshGold, self);
 		}
 
@@ -54,12 +57,14 @@ module guess {
 		 */
         protected onInit(){	
 			let self = this;
-			self.themCtrl = self.contentPane.getController("themCtrl");
+			//self.themCtrl = self.contentPane.getController("themCtrl");
 
 			self.questionPanel = self.contentPane.getChild("questionPanel") as QuestionPanel;
 			self.questionPanelDM = self.contentPane.getChild("questionPanelDM") as QuestionPanelDM;
 
-			self.txtGold = self.contentPane.getChild("goldComp").asCom.getChild("txtGold").asTextField;
+			self.goldComp = self.contentPane.getChild("goldComp").asCom;
+			self.txtGold = self.goldComp.getChild("txtGold").asTextField;
+			self.goldComp.addClickListener(self.onClickGold, self);
 
 			self.btnBack = self.contentPane.getChild("btnBack").asButton;
 			self.btnStage = self.contentPane.getChild("btnStage").asButton;
@@ -138,11 +143,10 @@ module guess {
 			if(isRight){				
 				// 首次答对加金币/红包
 				let gainGold = 0;
-				if(gameMgr.isFirstPassLevel(gameMgr.testMgr.curTest.level)){
+				let isFirstRight = gameMgr.isFirstPassLevel(gameMgr.testMgr.curTest.level);
+				if(isFirstRight){
 					gainGold = GameCfg.getCfg().TestRewardGold;
 					gameMgr.modifyGold(gainGold);
-
-					// 红包
 					gameMgr.modifyMoney(gameMgr.testMgr.curTest.money);
 				}
 
@@ -153,7 +157,7 @@ module guess {
 				self.resultWnd.initData(gainGold);
 
 				// 显示获得红包
-				if(gameMgr.testMgr.curTest.money > 0){					
+				if(isFirstRight && gameMgr.testMgr.curTest.money > 0){					
 					MainWindow.instance.showRedBagWindow(gameMgr.testMgr.curTest.money, "恭喜您获得红包");
 				}
 
@@ -164,9 +168,12 @@ module guess {
 			else{
 				// 错误提示
 				self.wrongTip.visible = true;
-				self.wrongTip.getTransition("t0").play(() => {
+				egret.Tween.get(self.wrongTip).set({alpha:0})
+				.to({alpha:1}, 500, egret.Ease.sineInOut).wait(500)
+				.to({alpha:0}, 500, egret.Ease.sineInOut)
+				.call(() => {
 					self.wrongTip.visible = false;
-				}, self);
+				});
 			}
 		}
 
@@ -183,21 +190,24 @@ module guess {
 		public initData(){
 			let self = this;	
 			self.refreshGold();	
-			let testInfo = utils.Singleton.get(GameMgr).testMgr.curTest;			
-			self.questionPanel.initTest(testInfo);
-			self.questionPanelDM.initTest(testInfo);
+			let testInfo = utils.Singleton.get(GameMgr).testMgr.curTest;
+			
+			self.questionPanelDM.initTest(testInfo);		
+			
+			self.questionPanel.initTest(testInfo); 
+				
 			self.initTest(testInfo);
 
 			self.txtLevel.text = testInfo ? `第 ${testInfo.level} 关` : "没有题目";
 
 			// 不同题目类型显示控制
-			if(testInfo)		
-				self.themCtrl.setSelectedIndex(testInfo.type == "people" ? 0 : 1);
+			//if(testInfo)		
+			//	self.themCtrl.setSelectedIndex(testInfo.type == "people" ? 0 : 1);
 		}
 		
 		public refreshGold(){
 			let self = this;	
-			self.txtGold.text = `金币：${utils.Singleton.get(GameMgr).data.gold}`;
+			self.txtGold.text = `${utils.Singleton.get(GameMgr).data.gold}`;
 		}
 
 		public initTest(test:ITestInfo){
@@ -245,18 +255,54 @@ module guess {
 			
 			// 扣金币
 			let cost = GameCfg.getCfg().UnlockAnswerCost;
-			if(!utils.Singleton.get(GameMgr).checkGoldEnough(cost))
-				return console.log("金币不足！");
+			if(!utils.Singleton.get(GameMgr).checkGoldEnough(cost)){
+				if(!self.lackWnd)
+					self.lackWnd = new LackGoldWindow("guess");
+				self.lackWnd.show();
+				self.lackWnd.initData();
+
+				// 监听观看成功
+				utils.EventDispatcher.getInstance().removeEventListener("watchAdOk", self.showAnswerTip, self);
+				utils.EventDispatcher.getInstance().once("watchAdOk", self.showAnswerTip, self);
+				// 监听分享到群成功
+				utils.EventDispatcher.getInstance().removeEventListener("shareGroupOk", self.showAnswerTip, self);
+				utils.EventDispatcher.getInstance().once("shareGroupOk", self.showAnswerTip, self);
+				return;
+			}
 
 			utils.Singleton.get(GameMgr).costGold(cost);
 
 			// 提示答案
+			self.showAnswerTip();
+		}
+
+		private showAnswerTip(){
+			let self = this;
 			let answer = utils.Singleton.get(GameMgr).testMgr.curTest.answer;
 			for(let i = 0, len = self.lstOption.numItems; i < len; i++){
 				let item = self.lstOption.getChildAt(i) as WordItem;
 				if(answer.indexOf(item.word) != -1)
 					item.showColorAni();
-			}		
+			}	
+		}
+
+		private onClickGold(e){
+			let self = this;
+
+			// 判断是不是首次点击
+			let isFirstClick = true;
+			if(isFirstClick){
+				let wnd = new FirstShareGroupWindow();
+				wnd.show();
+				wnd.initData();
+				utils.EventDispatcher.getInstance().removeEventListener("shareGroupOk", self.onShareOk, self);
+				utils.EventDispatcher.getInstance().once("shareGroupOk", self.onShareOk, self);
+			}
+		}
+
+		private onShareOk(){
+			// 分享成功加金币
+			utils.Singleton.get(GameMgr).modifyGold(GameCfg.getCfg().FirstShareGroupGold);
 		}
 	}
 }
