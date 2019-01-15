@@ -41,8 +41,8 @@ export class WxgamePlugin implements plugins.Command {
                     content += ";window.fairygui = fairygui;";
                 }
 
-                if(filename == "libs/g2/g2.js" || filename == "libs/g2/g2.min.js") {
-                    content += ";window.g2 = g2;";
+                if(filename == "libs/modules/utils/utils.js" || filename == "libs/modules/utils/utils.min.js") {
+                    content += ";window.utils = utils;";
                 }
 
                 file.contents = new Buffer(content);

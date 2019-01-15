@@ -8,6 +8,7 @@ module guess {
 		public stageWnd:StageWindow;
 		public redbag:RedBagWindow;
 		public drawWnd:DrawWindow;
+		private scopeCtrl:fairygui.Controller;
 		private btnStart:fairygui.GButton;
 		private btnStage:fairygui.GButton;
 		private btnRedBag:fairygui.GButton;
@@ -26,6 +27,7 @@ module guess {
 			self.btnRedBag.removeClickListener(self.onBtnRedBag, self);
 			self.btnDraw.removeClickListener(self.onBtnDraw, self);
 			utils.EventDispatcher.getInstance().removeEventListener("startStage", self.onStartStage, self);
+			utils.EventDispatcher.getInstance().removeEventListener("onClickStartBtn", self.onBtnStart, self);
 		}
 
 		protected addEventListeners(){
@@ -46,8 +48,13 @@ module guess {
 		 */
         protected onInit(){	
 			super.onInit();	
-			let self = this;
+			let self = this;			
+			let isRunWeb = (platform instanceof DebugPlatform) ? true : false;
+			utils.EventDispatcher.getInstance().addEventListener("onClickStartBtn", self.onBtnStart, self);
+			self.scopeCtrl = self.contentPane.getController("scopeCtrl");
+			self.scopeCtrl.setSelectedIndex(isRunWeb || Main.isScopeUserInfo  ? 1 : 0);
 			self.btnStart = self.contentPane.getChild("btnStart").asButton;
+			self.btnStart.visible = isRunWeb;
 			self.btnStart.addClickListener(self.onBtnStart, self);	
 			self.btnStage = self.contentPane.getChild("btnStage").asButton;
 			self.btnStage.addClickListener(self.onBtnStage, self);	
@@ -59,6 +66,7 @@ module guess {
 		
 		private onBtnStart(e){
 			let self = this;
+			self.scopeCtrl.setSelectedIndex(1);
 			self.startPlay();
 		}
 

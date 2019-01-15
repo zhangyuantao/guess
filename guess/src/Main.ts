@@ -1,8 +1,12 @@
 class Main extends egret.DisplayObjectContainer {
+    public static systemInfo:any;
+    public static userInfoBtn:UserInfoButton;
+    public static isScopeUserInfo:boolean;
+
     public constructor() {
         super();
-       // if(wx && wx.loadFont)
-        //    wx.loadFont("resource/RubikOne-Regular.ttf");
+        if(platform.isRunInWX())
+            wx.loadFont("resource/RubikOne-Regular.ttf");
         this.addEventListener(egret.Event.ADDED_TO_STAGE, this.onAddToStage, this);
     }
 
@@ -27,17 +31,24 @@ class Main extends egret.DisplayObjectContainer {
         }
 
         this.runGame().catch(e => {
-            //console.log(e);
+            console.log(e);
         })
     }
 
     private async runGame() {
-        await this.loadResource();            
+        await this.loadResource(); 
         await platform.login();
-        this.createGameScene(); 
-        const userInfo = await platform.getUserInfo();
-        //console.log(userInfo);
 
+        // 读取设备信息
+        Main.systemInfo = await platform.getSystemInfo();
+
+        const setting = await platform.getSetting();  
+        Main.isScopeUserInfo = setting["authSetting"]["scope.userInfo"];
+
+        this.createGameScene(); 
+        
+        const userInfo = await platform.getUserInfo();
+        console.log(userInfo);
     }
 
     private async loadResource() {
@@ -47,6 +58,11 @@ class Main extends egret.DisplayObjectContainer {
             await RES.loadConfig("resource/default.res.json", "resource/");
             await RES.loadGroup("preload", 0, loadingView);
             this.stage.removeChild(loadingView);
+
+            //加载排行榜资源
+            platform.openDataContext.postMessage({
+                command: "loadRes"
+            });
         }
         catch (e) {
             console.error(e);
@@ -57,13 +73,49 @@ class Main extends egret.DisplayObjectContainer {
      * 创建游戏场景
      * Create a game scene
      */
-    private createGameScene() {        
+    private createGameScene() {
+        // 没有授权则创建授权按钮
+        if(platform.isRunInWX()){
+            let btnWidth = Main.systemInfo.windowWidth / utils.StageUtils.stageWidth * 376;
+            let btnHeight = Main.systemInfo.windowHeight / utils.StageUtils.stageHeight * 178;
+            Main.userInfoBtn = wx.createUserInfoButton({
+                    type: 'image',
+                    image: 'resource/assets/startBtn.png',
+                    style: {
+                        left: Main.systemInfo.windowWidth * 0.5 - btnWidth * 0.5,
+                        top:  Main.systemInfo.windowHeight * 0.5,
+                        width: btnWidth,
+                        height: btnHeight,
+                    }
+                });
+
+            Main.userInfoBtn.onTap((res) => {
+                if(res.errMsg == "getUserInfo:ok"){               
+                    utils.EventDispatcher.getInstance().dispatchEvent("onClickStartBtn");
+                    Main.userInfoBtn.hide();
+                }
+            });      
+        }  
+
         fairygui.UIPackage.addPackage("guess");        
         this.stage.addChild(fairygui.GRoot.inst.displayObject);
         this.stage.removeChild(this);
         let wnd = new guess.MainWindow("guess");
         wnd.show();
+
+        wx.onShareAppMessage(() => {
+            // 用户点击了“转发”按钮
+            return {
+                title: '转发标题'
+            }
+        });
+
+        // 显示转发分享菜单
+        //wx.showShareMenu();
+    
+        
+        //调用广告
+      //  wx.createBannerAd({ adUnitId: "adunit-549b2e8b53ad8e21", style: { left: 0, top: 1280 - 150, width: 720, height: 150} })
+        
     }
 }
-
-//let wx = <any>{};

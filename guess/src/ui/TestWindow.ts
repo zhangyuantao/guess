@@ -235,6 +235,8 @@ module guess {
 		private onBtnBack(e){
 			let self = this;
 			self.hide();
+			if(platform.isRunInWX())
+				Main.userInfoBtn.show();
 		}
 
 		private onBtnStage(e){
