@@ -155,9 +155,12 @@ function drawRankPanel() {
   //绘制标题
   const title = assets.title;
   //根据title的宽高计算一下位置;
-  const titleX = offsetX_rankToBorder + (rankWidth - title.width) / 2;
-  const titleY = offsetY_rankToBorder + title.height + 40;
-  context_drawImage(title, titleX, titleY);
+  const titleW = title.width / 720 * stageWidth;
+  const titleH = title.height / 1280 * stageHeight;
+  const titleX = offsetX_rankToBorder + (rankWidth - titleW) * 0.5;
+  const titleY = offsetY_rankToBorder - 100;
+  context_drawImage(title, titleX, titleY, titleW, titleH);
+  
   //获取当前要渲染的数据组
 
   //起始id
@@ -195,7 +198,7 @@ function init() {
   buttonOffset = rankWidth / 3;
   lastButtonX = offsetX_rankToBorder + buttonOffset - buttonWidth;
   nextButtonX = offsetX_rankToBorder + 2 * buttonOffset;
-  nextButtonY = lastButtonY = offsetY_rankToBorder + rankHeight - 50 - buttonHeight;
+  nextButtonY = lastButtonY = offsetY_rankToBorder + rankHeight - 50 - buttonHeight;  
   let data = wx.getSystemInfoSync();
   canvasWidth = data.windowWidth;
   canvasHeight = data.windowHeight;
@@ -264,7 +267,6 @@ function onTouchEnd(event) {
       buttonClick(1);
     }
   }
-
 }
 /**
  * 根据传入的buttonKey 执行点击处理
@@ -280,7 +282,8 @@ function buttonClick(buttonKey) {
     page--;
     renderDirty = true;
     console.log('上一页' + page);
-    setTimeout(() => {
+    let id = setTimeout(() => {
+      clearTimeout(id);
       lastButtonY = old_buttonY;
       //重新渲染必须标脏
       renderDirty = true;
@@ -292,13 +295,13 @@ function buttonClick(buttonKey) {
     page++;
     renderDirty = true;
     console.log('下一页' + page);
-    setTimeout(() => {
+    let id = setTimeout(() => {
+      clearTimeout(id);
       nextButtonY = old_buttonY;
       //重新渲染必须标脏
       renderDirty = true;
     }, 100);
   }
-
 }
 
 /////////////////////////////////////////////////////////////////// 相关缓存数据
@@ -531,7 +534,7 @@ function context_drawImage(image, x, y, width, height) {
     if (width && height) {
       context.drawImage(image, x, y, width, height);
     } else {
-      context.drawImage(image, x, y);
+        context.drawImage(image, x, y, image.width, image.height);
     }
   }
 }

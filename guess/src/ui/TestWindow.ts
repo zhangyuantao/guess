@@ -10,6 +10,7 @@ module guess {
 		private btnStage:fairygui.GButton;
 		private btnRedBag:fairygui.GButton;
 		private btnUnlock:fairygui.GButton;
+		private btnRank:fairygui.GButton;
 		private lstSelect:fairygui.GList;
 		private lstOption:fairygui.GList;
 		private goldComp:fairygui.GComponent;
@@ -29,9 +30,10 @@ module guess {
 			self.btnStage.removeClickListener(self.onBtnStage, self);
 			self.btnRedBag.removeClickListener(self.onBtnRedBag, self);
 			self.btnUnlock.removeClickListener(self.onBtnUnlock, self);
+			self.btnUnlock.removeClickListener(self.onBtnRank, self);
+			self.goldComp.removeClickListener(self.onClickGold, self);
 			self.lstSelect.removeEventListener(fairygui.ItemEvent.CLICK, self.onSelectLstClick, self);
 			self.lstOption.removeEventListener(fairygui.ItemEvent.CLICK, self.onOptionLstClick, self);
-			self.goldComp.removeClickListener(self.onClickGold, self);
 			utils.EventDispatcher.getInstance().removeEventListener("goldChanged", self.refreshGold, self);
 		}
 
@@ -70,10 +72,12 @@ module guess {
 			self.btnStage = self.contentPane.getChild("btnStage").asButton;
 			self.btnRedBag = self.contentPane.getChild("btnRedBag").asButton;
 			self.btnUnlock = self.contentPane.getChild("btnUnlock").asButton;
+			self.btnRank = self.contentPane.getChild("btnRank").asButton;
 			self.btnBack.addClickListener(self.onBtnBack, self);
 			self.btnStage.addClickListener(self.onBtnStage, self);
 			self.btnRedBag.addClickListener(self.onBtnRedBag, self);
 			self.btnUnlock.addClickListener(self.onBtnUnlock, self);
+			self.btnRank.addClickListener(self.onBtnRank, self);
 
 			self.lstSelect = self.contentPane.getChild("lstSelect").asList;
 			self.lstOption = self.contentPane.getChild("lstOption").asList;
@@ -235,8 +239,6 @@ module guess {
 		private onBtnBack(e){
 			let self = this;
 			self.hide();
-			if(platform.isRunInWX())
-				Main.userInfoBtn.show();
 		}
 
 		private onBtnStage(e){
@@ -276,6 +278,10 @@ module guess {
 
 			// 提示答案
 			self.showAnswerTip();
+		}
+
+		private onBtnRank(e){
+			MainWindow.instance.showOrHideRankWnd();
 		}
 
 		private showAnswerTip(){

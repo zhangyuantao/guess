@@ -74,8 +74,7 @@ class Main extends egret.DisplayObjectContainer {
      * Create a game scene
      */
     private createGameScene() {
-        // 没有授权则创建授权按钮
-        if(platform.isRunInWX()){
+        if(!Main.isScopeUserInfo && platform.isRunInWX()){
             let btnWidth = Main.systemInfo.windowWidth / utils.StageUtils.stageWidth * 376;
             let btnHeight = Main.systemInfo.windowHeight / utils.StageUtils.stageHeight * 178;
             Main.userInfoBtn = wx.createUserInfoButton({
@@ -90,9 +89,10 @@ class Main extends egret.DisplayObjectContainer {
                 });
 
             Main.userInfoBtn.onTap((res) => {
-                if(res.errMsg == "getUserInfo:ok"){               
+                if(res.errMsg == "getUserInfo:ok"){  
+                    Main.isScopeUserInfo = true;
+                    Main.userInfoBtn.hide();   
                     utils.EventDispatcher.getInstance().dispatchEvent("onClickStartBtn");
-                    Main.userInfoBtn.hide();
                 }
             });      
         }  
