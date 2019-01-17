@@ -224,7 +224,7 @@ module guess {
 
 			self.isFillAnswer = false;
 
-			let ops = test.option.split(",");
+			let ops = test.option.split("、");
 			for(let i = 0, len = ops.length; i < len; i++){
 				let item = self.lstOption.addItemFromPool(fairygui.UIPackage.getItemURL("guess", "WordItem")) as WordItem;
 				item.setChar(ops[i])

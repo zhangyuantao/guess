@@ -11,7 +11,6 @@ module guess {
 		private scopeCtrl:fairygui.Controller;
 		private btnStart:fairygui.GButton;
 		private btnStage:fairygui.GButton;
-		private btnRedBag:fairygui.GButton;
 		private btnDraw:fairygui.GButton;
 		private btnRank:fairygui.GButton;
 		private btnCloseRank:fairygui.GButton;		
@@ -30,7 +29,6 @@ module guess {
 			let self = this;
 			self.btnStart.removeClickListener(self.onBtnStart, self);
 			self.btnStage.removeClickListener(self.onBtnStage, self);
-			self.btnRedBag.removeClickListener(self.onBtnRedBag, self);
 			self.btnDraw.removeClickListener(self.onBtnDraw, self);
 			self.btnRank.removeClickListener(self.onBtnRank, self);	
 			self.btnCloseRank.removeClickListener(self.onBtnRank, self);	
@@ -66,8 +64,6 @@ module guess {
 			self.btnStart.addClickListener(self.onBtnStart, self);	
 			self.btnStage = self.contentPane.getChild("btnStage").asButton;
 			self.btnStage.addClickListener(self.onBtnStage, self);	
-			self.btnRedBag = self.contentPane.getChild("btnRedBag").asButton;
-			self.btnRedBag.addClickListener(self.onBtnRedBag, self);	
 			self.btnDraw = self.contentPane.getChild("btnDraw").asButton;
 			self.btnDraw.addClickListener(self.onBtnDraw, self);
 			self.btnRank = self.contentPane.getChild("btnRank").asButton;
@@ -94,11 +90,6 @@ module guess {
 			self.showStageWindow();
 		}
 
-		private onBtnRedBag(e){
-			let self = this;
-			self.showRedBagWindow();
-		}
-
 		private onBtnDraw(e){
 			let self = this;
 			self.showDrawWindow();
@@ -111,6 +102,8 @@ module guess {
 
 		public showOrHideRankWnd(){
 			let self = this;
+			if(!platform.isRunInWX())
+				return;
 			if(!self.isShowRank) {
 				Main.userInfoBtn && Main.userInfoBtn.hide();
 				

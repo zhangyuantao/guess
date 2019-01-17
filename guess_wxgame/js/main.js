@@ -304,7 +304,7 @@ var Main = (function (_super) {
                         _a.sent();
                         this.stage.removeChild(loadingView);
                         //加载排行榜资源
-                        platform.openDataContext.postMessage({
+                        platform.openDataContext && platform.openDataContext.postMessage({
                             command: "loadRes"
                         });
                         return [3 /*break*/, 4];
@@ -348,12 +348,14 @@ var Main = (function (_super) {
         this.stage.removeChild(this);
         var wnd = new guess.MainWindow("guess");
         wnd.show();
-        wx.onShareAppMessage(function () {
-            // 用户点击了“转发”按钮
-            return {
-                title: '转发标题'
-            };
-        });
+        if (platform.isRunInWX()) {
+            wx.onShareAppMessage(function () {
+                // 用户点击了“转发”按钮
+                return {
+                    title: '转发标题'
+                };
+            });
+        }
         // 显示转发分享菜单
         //wx.showShareMenu();
         //调用广告
@@ -816,7 +818,6 @@ var guess;
             var self = this;
             self.btnStart.removeClickListener(self.onBtnStart, self);
             self.btnStage.removeClickListener(self.onBtnStage, self);
-            self.btnRedBag.removeClickListener(self.onBtnRedBag, self);
             self.btnDraw.removeClickListener(self.onBtnDraw, self);
             self.btnRank.removeClickListener(self.onBtnRank, self);
             self.btnCloseRank.removeClickListener(self.onBtnRank, self);
@@ -849,8 +850,6 @@ var guess;
             self.btnStart.addClickListener(self.onBtnStart, self);
             self.btnStage = self.contentPane.getChild("btnStage").asButton;
             self.btnStage.addClickListener(self.onBtnStage, self);
-            self.btnRedBag = self.contentPane.getChild("btnRedBag").asButton;
-            self.btnRedBag.addClickListener(self.onBtnRedBag, self);
             self.btnDraw = self.contentPane.getChild("btnDraw").asButton;
             self.btnDraw.addClickListener(self.onBtnDraw, self);
             self.btnRank = self.contentPane.getChild("btnRank").asButton;
@@ -873,10 +872,6 @@ var guess;
             var self = this;
             self.showStageWindow();
         };
-        MainWindow.prototype.onBtnRedBag = function (e) {
-            var self = this;
-            self.showRedBagWindow();
-        };
         MainWindow.prototype.onBtnDraw = function (e) {
             var self = this;
             self.showDrawWindow();
@@ -887,6 +882,8 @@ var guess;
         };
         MainWindow.prototype.showOrHideRankWnd = function () {
             var self = this;
+            if (!platform.isRunInWX())
+                return;
             if (!self.isShowRank) {
                 Main.userInfoBtn && Main.userInfoBtn.hide();
                 //处理遮罩,避免开放域数据影响主域
@@ -1515,7 +1512,7 @@ var guess;
             if (!test)
                 return;
             self.isFillAnswer = false;
-            var ops = test.option.split(",");
+            var ops = test.option.split("、");
             for (var i = 0, len = ops.length; i < len; i++) {
                 var item = self.lstOption.addItemFromPool(fairygui.UIPackage.getItemURL("guess", "WordItem"));
                 item.setChar(ops[i]);

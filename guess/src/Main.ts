@@ -60,7 +60,7 @@ class Main extends egret.DisplayObjectContainer {
             this.stage.removeChild(loadingView);
 
             //加载排行榜资源
-            platform.openDataContext.postMessage({
+            platform.openDataContext && platform.openDataContext.postMessage({
                 command: "loadRes"
             });
         }
@@ -103,12 +103,14 @@ class Main extends egret.DisplayObjectContainer {
         let wnd = new guess.MainWindow("guess");
         wnd.show();
 
-        wx.onShareAppMessage(() => {
-            // 用户点击了“转发”按钮
-            return {
-                title: '转发标题'
-            }
-        });
+        if(platform.isRunInWX()){
+            wx.onShareAppMessage(() => {
+                // 用户点击了“转发”按钮
+                return {
+                    title: '转发标题'
+                }
+            });
+        }
 
         // 显示转发分享菜单
         //wx.showShareMenu();
