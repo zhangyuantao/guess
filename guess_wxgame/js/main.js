@@ -97,6 +97,9 @@ var guess;
          */
         BaseWindow.prototype.onInit = function () {
             console.log("onInit");
+            var self = this;
+            self.width = egret.MainContext.instance.stage.stageWidth;
+            self.height = egret.MainContext.instance.stage.stageHeight;
         };
         /**
          * 显示完成
@@ -192,6 +195,7 @@ var guess;
          * 初始化完成
          */
         LackGoldWindow.prototype.onInit = function () {
+            _super.prototype.onInit.call(this);
             var self = this;
             self.btnTask = self.contentPane.getChild("btnTask").asButton;
             self.btnTask.addClickListener(self.onbtnTask, self);
@@ -233,8 +237,8 @@ var Main = (function (_super) {
     __extends(Main, _super);
     function Main() {
         var _this = _super.call(this) || this;
-        if (platform.isRunInWX())
-            wx.loadFont("resource/RubikOne-Regular.ttf");
+        //if(platform.isRunInWX())
+        //   wx.loadFont("resource/RubikOne-Regular.ttf");
         _this.addEventListener(egret.Event.ADDED_TO_STAGE, _this.onAddToStage, _this);
         return _this;
     }
@@ -621,6 +625,7 @@ var guess;
          * 初始化完成
          */
         CashWindow.prototype.onInit = function () {
+            _super.prototype.onInit.call(this);
             var self = this;
             self.txtTip = self.contentPane.getChild("txtTip").asTextField;
             self.btnClose = self.contentPane.getChild("btnClose").asButton;
@@ -674,6 +679,7 @@ var guess;
          * 初始化完成
          */
         DrawWindow.prototype.onInit = function () {
+            _super.prototype.onInit.call(this);
             var self = this;
             self.btnDraw = self.contentPane.getChild("btnDraw").asButton;
             self.btnDraw.addClickListener(self.onBtnDrawClick, self);
@@ -749,6 +755,7 @@ var guess;
          * 初始化完成
          */
         FirstShareGroupWindow.prototype.onInit = function () {
+            _super.prototype.onInit.call(this);
             var self = this;
             self.btnShare = self.contentPane.getChild("btnShare").asButton;
             self.btnShare.addClickListener(self.onbtnShare, self);
@@ -1067,6 +1074,7 @@ var guess;
          * 初始化完成
          */
         RedBagWindow.prototype.onInit = function () {
+            _super.prototype.onInit.call(this);
             var self = this;
             self.txtMoney = self.contentPane.getChild("txtMoney").asTextField;
             self.txtTip = self.contentPane.getChild("txtTip").asTextField;
@@ -1142,6 +1150,7 @@ var guess;
          * 初始化完成
          */
         ResultWindow.prototype.onInit = function () {
+            _super.prototype.onInit.call(this);
             var self = this;
             self.btnNext = self.contentPane.getChild("btnNext").asButton;
             self.btnNext.addClickListener(self.onBtnNext, self);
@@ -1152,9 +1161,6 @@ var guess;
             self.rankNxt = self.contentPane.getChild("rankNxt").asCom;
             self.txtGold = self.contentPane.getChild("txtGold").asTextField;
             self.txtTip = self.contentPane.getChild("txtTip").asTextField;
-        };
-        ResultWindow.prototype.onShown = function () {
-            var self = this;
         };
         ResultWindow.prototype.initData = function (gainGold) {
             var self = this;
@@ -1237,6 +1243,7 @@ var guess;
          * 初始化完成
          */
         StageWindow.prototype.onInit = function () {
+            _super.prototype.onInit.call(this);
             var self = this;
             self.btnClose = self.contentPane.getChild("btnClose").asButton;
             self.btnClose.addClickListener(self.onBtnClose, self);
@@ -1375,6 +1382,7 @@ var guess;
          * 初始化完成
          */
         TestWindow.prototype.onInit = function () {
+            _super.prototype.onInit.call(this);
             var self = this;
             //self.themCtrl = self.contentPane.getController("themCtrl");
             self.questionPanel = self.contentPane.getChild("questionPanel");

@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "guess_atlas0,guess,guessConfig_json,testConfig_json,startBtn_png",
+			"keys": "guess_atlas0,guess,guessConfig_json,testConfig_json,startBtn_png,guess_atlas0_1",
 			"name": "preload"
 		}
 	],
@@ -30,6 +30,11 @@
 			"name": "startBtn_png",
 			"type": "image",
 			"url": "assets/startBtn.png"
+		},
+		{
+			"name": "guess_atlas0_1",
+			"type": "image",
+			"url": "assets/guess_atlas0_1.png"
 		}
 	]
 }

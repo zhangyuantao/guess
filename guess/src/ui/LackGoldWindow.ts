@@ -21,6 +21,7 @@ module guess {
 		 * 初始化完成
 		 */
         protected onInit(){	
+			super.onInit();
 			let self = this;		
 			self.btnTask = self.contentPane.getChild("btnTask").asButton;
 			self.btnTask.addClickListener(self.onbtnTask, self);

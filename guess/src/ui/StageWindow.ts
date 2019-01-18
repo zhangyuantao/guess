@@ -37,6 +37,7 @@ module guess {
 		 * 初始化完成
 		 */
         protected onInit(){	
+			super.onInit();
 			let self = this;
 			self.btnClose = self.contentPane.getChild("btnClose").asButton;
 			self.btnClose.addClickListener(self.onBtnClose, self);

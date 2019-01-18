@@ -19,6 +19,7 @@ module guess {
 		 * 初始化完成
 		 */
         protected onInit(){	
+			super.onInit();
 			let self = this;		
 			self.txtTip = self.contentPane.getChild("txtTip").asTextField;
 			self.btnClose = self.contentPane.getChild("btnClose").asButton;

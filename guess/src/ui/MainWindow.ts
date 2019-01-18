@@ -54,7 +54,7 @@ module guess {
 		 */
         protected onInit(){	
 			super.onInit();	
-			let self = this;			
+			let self = this;	
 			let isRunWeb = (platform instanceof DebugPlatform) ? true : false;
 			utils.EventDispatcher.getInstance().addEventListener("onClickStartBtn", self.onBtnStart, self);
 			self.scopeCtrl = self.contentPane.getController("scopeCtrl");

@@ -38,6 +38,7 @@ module guess {
 		 * 初始化完成
 		 */
         protected onInit(){	
+			super.onInit();
 			let self = this;			
 			self.txtMoney = self.contentPane.getChild("txtMoney").asTextField;
 			self.txtTip = self.contentPane.getChild("txtTip").asTextField;

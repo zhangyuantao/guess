@@ -33,6 +33,7 @@ module guess {
 		 * 初始化完成
 		 */
         protected onInit(){	
+			super.onInit();
 			let self = this;	
 			self.btnDraw = self.contentPane.getChild("btnDraw").asButton;
 			self.btnDraw.addClickListener(self.onBtnDrawClick, self);

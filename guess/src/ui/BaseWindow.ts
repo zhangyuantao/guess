@@ -55,6 +55,9 @@ module guess {
 		 */		
         protected onInit(){			
 			console.log("onInit");
+			let self = this;
+			self.width = egret.MainContext.instance.stage.stageWidth;
+			self.height = egret.MainContext.instance.stage.stageHeight;
 		}	
 		
 		/**

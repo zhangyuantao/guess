@@ -37,6 +37,7 @@ module guess {
 		 * 初始化完成
 		 */
         protected onInit(){	
+			super.onInit();
 			let self = this;		
 			self.btnNext = self.contentPane.getChild("btnNext").asButton;
 			self.btnNext.addClickListener(self.onBtnNext, self);
@@ -47,10 +48,6 @@ module guess {
 			self.rankNxt = self.contentPane.getChild("rankNxt").asCom;
 			self.txtGold = self.contentPane.getChild("txtGold").asTextField;
 			self.txtTip = self.contentPane.getChild("txtTip").asTextField;
-		}
-
-		public onShown(){
-			let self = this;
 		}
 
 		public initData(gainGold:number){
