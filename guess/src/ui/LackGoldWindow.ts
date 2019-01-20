@@ -49,8 +49,14 @@ module guess {
 				});			
 			}
 			else{ // 分享到群
-				utils.EventDispatcher.getInstance().dispatchEvent("shareGroupOk");
 
+				wx.shareAppMessage({
+					"title":"一起猜灯谜",
+					"imageUrl":"resource/assets/startBtn.png",
+					"imageUrlId":0,
+					"query":"",					
+				});
+				
 				self.hide();
 			}
 		}

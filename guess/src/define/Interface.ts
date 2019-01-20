@@ -32,7 +32,6 @@ module guess {
 		gold:number;
 		money:number;
 		reachLevel:number;
-		passLevels:number[];
 		toDayWatchAdCount:number;
 	}
 

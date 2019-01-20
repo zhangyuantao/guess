@@ -48,103 +48,23 @@ context.globalCompositeOperation = "source-over";
  * 包括姓名，头像图片，得分
  * 排位序号i会根据parge*perPageNum+i+1进行计算
  */
-const totalGroup = [{
-    key: 1,
-    name: "1111111111",
-    url: assets.icon,
-    scroes: 10000
-  },
-  {
-    key: 2,
-    name: "2222222222",
-    url: assets.icon,
-    scroes: 9000
-  },
-  {
-    key: 3,
-    name: "3333333",
-    url: assets.icon,
-    scroes: 8000
-  },
-  {
-    key: 4,
-    name: "4444444",
-    url: assets.icon,
-    scroes: 7000
-  },
-  {
-    key: 5,
-    name: "55555555",
-    url: assets.icon,
-    scroes: 6000
-  },
-  {
-    key: 6,
-    name: "6666666",
-    url: assets.icon,
-    scroes: 5000
-  },
-  {
-    key: 7,
-    name: "7777777",
-    url: assets.icon,
-    scroes: 4000
-  },
-  {
-    key: 8,
-    name: "8888888",
-    url: assets.icon,
-    scroes: 3000
-  },
-  {
-    key: 9,
-    name: "9999999",
-    url: assets.icon,
-    scroes: 2000
-  },
-  {
-    key: 10,
-    name: "1010101010",
-    url: assets.icon,
-    scroes: 2000
-  },
-  {
-    key: 11,
-    name: "111111111111",
-    url: assets.icon,
-    scroes: 2000
-  },
-  {
-    key: 12,
-    name: "121212121212",
-    url: assets.icon,
-    scroes: 2000
-  },
-  {
-    key: 13,
-    name: "13131313",
-    url: assets.icon,
-    scroes: 2000
-  },
-  {
-    key: 14,
-    name: "1414141414",
-    url: assets.icon,
-    scroes: 2000
-  },
-  {
-    key: 15,
-    name: "1515151515",
-    url: assets.icon,
-    scroes: 2000
-  },
-  {
-    key: 16,
-    name: "1616161616",
-    url: assets.icon,
-    scroes: 2000
-  },
+let totalGroup = [
+    { seq:0, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 100, time: 1000 }] },
+    { seq: 1, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 101, time: 100 }] },
+    { seq: 2, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 102, time: 1700 }] },
+    { seq: 3, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 103, time: 1800 }] },
+    { seq: 4, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 104, time: 1900 }] },
+    { seq: 5, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 105, time: 1070 }] },
+    { seq: 6, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 106, time: 1030 }] },
+    { seq: 7, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 107, time: 1010 }] },
+    { seq: 8, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 108, time: 1020 }] },
+    { seq: 9, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 109, time: 1030 }] },
+    { seq: 10, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 111, time: 1040 }] },
+    { seq: 11, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 112, time: 1050 }] },
+    { seq: 12, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 123, time: 1060 }] },
+    { seq: 13, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 167, time: 1080 }] }
 ];
+
 
 /**
  * 创建排行榜
@@ -162,14 +82,54 @@ function drawRankPanel() {
   context_drawImage(title, titleX, titleY, titleW, titleH);
   
   //获取当前要渲染的数据组
+   wx.getFriendCloudStorage({
+        keys: ["level"],
+        success: function (res) {
+           // console.log("好友数据",res);
+            totalGroup = res.data;
+            // 排序
+            totalGroup.sort((a, b) => {
+                let a_level = 0;
+                for (let i = 0; i < a.KVDataList.length; i++) {
+                    if (a.KVDataList[i]["level"]) {
+                        a_level = a.KVDataList[i]["level"];
+                        break;
+                    }
+                }
+                let b_level = 0;
+                for (let i = 0; i < b.KVDataList.length; i++) {
+                    if (b.KVDataList[i]["level"]) {
+                        b_level = b.KVDataList[i]["level"];
+                        break;
+                    }
+                }
+                if(a_level > b_level) return -1;
+                else if (a_level == b_level) return 0;
+                else return 1;
+            });
 
-  //起始id
-  const startID = perPageMaxNum * page;
-  currentGroup = totalGroup.slice(startID, startID + perPageMaxNum);
-  //创建头像Bar
-  drawRankByGroup(currentGroup);
-  //创建按钮
-  drawButton()
+            // 预加载头像
+            let urls = [];
+            for(let i = 0, len = res.data.length; i < len; i++){
+                urls.push(res.data[i].avatarUrl);
+            }
+            preloadAvatars(urls, () => {
+                //起始id
+                const startID = perPageMaxNum * page;
+                currentGroup = totalGroup.slice(startID, startID + perPageMaxNum);
+                //创建头像Bar
+                drawRankByGroup(currentGroup);
+                //创建按钮
+                drawButton()
+            })            
+        },
+        fail: function (res) {
+            
+        },
+        complete: function (res) {
+           
+        },
+    })
 }
 /**
  * 根据屏幕大小初始化所有绘制数据
@@ -234,16 +194,24 @@ function drawByData(data, i) {
   //设置字体
   context.font = fontSize + "px Arial";
   //绘制序号
-  context.fillText(data.key + "", x, startY + i * preOffsetY + textOffsetY, textMaxSize);
+  context.fillText(i + 1 + "", x, startY + i * preOffsetY + textOffsetY, textMaxSize);
   x += indexWidth + intervalX;
-  //绘制头像
-  context_drawImage(assets.icon, x, startY + i * preOffsetY + (barHeight - avatarSize) / 2, avatarSize, avatarSize);
+  //绘制头像  
+    context_drawImage(assets[data.avatarUrl] || assets.icon, x, startY + i * preOffsetY + (barHeight - avatarSize) / 2, avatarSize, avatarSize);
   x += avatarSize + intervalX;
+
   //绘制名称
-  context.fillText(data.name + "", x, startY + i * preOffsetY + textOffsetY, textMaxSize);
+  context.fillText(data.nickname + "", x, startY + i * preOffsetY + textOffsetY, textMaxSize);
   x += textMaxSize + intervalX;
   //绘制分数
-  context.fillText(data.scroes + "", x, startY + i * preOffsetY + textOffsetY, textMaxSize);
+  let level = 0;
+  for(let i = 0; i < data.KVDataList.length; i++){
+      if(data.KVDataList[i]["level"]){
+          level = data.KVDataList[i]["level"];
+          break;
+      }
+  }
+    context.fillText(level + "", x, startY + i * preOffsetY + textOffsetY, textMaxSize);
 }
 
 /**
@@ -458,6 +426,26 @@ function preloadAssets() {
   }
 }
 
+/**
+ * 预加载头像
+ */
+function preloadAvatars(assetsUrl, cb) {
+    let preloaded = 0;
+    let count = 0;
+    for (let asset in assetsUrl) {
+        count++;
+        const img = wx.createImage();
+        img.onload = () => {
+            preloaded++;
+            if (preloaded == count) {
+                cb();
+            }
+        }
+        img.src = assetsUrl[asset];
+        assets[assetsUrl[asset]] = img;
+    }
+}
+
 
 /**
  * 绘制屏幕
@@ -537,4 +525,21 @@ function context_drawImage(image, x, y, width, height) {
         context.drawImage(image, x, y, image.width, image.height);
     }
   }
+}
+
+function getUserCloudStorage(keyArr){
+    return new Promise((resolve, reject) => {
+        wx.getUserCloudStorage({
+            keys: keyArr,
+            success: function (res) {
+                resolve(res);
+            },
+            fail: function (res) {
+                reject(res);
+            },
+            complete: function (res) {
+                reject(res);
+            },
+        })
+    })
 }

@@ -77,7 +77,7 @@ module guess {
 		public initData(reset?:boolean){			
 			let self = this;
 			if(reset) self.pageIdx = 0;
-			let maxLv = utils.Singleton.get(GameMgr).getReachMaxLevel();
+			let maxLv = utils.Singleton.get(GameMgr).getMaxOpenLevel();
 			let pageIdx = self.pageIdx || Math.floor(maxLv / 20);
 			let level = pageIdx * 20 + 1;
 			for(let i = 0, len = self.lstLevel.numItems; i < len; i++){

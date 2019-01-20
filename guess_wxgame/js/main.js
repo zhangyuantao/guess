@@ -220,7 +220,12 @@ var guess;
                 });
             }
             else {
-                utils.EventDispatcher.getInstance().dispatchEvent("shareGroupOk");
+                wx.shareAppMessage({
+                    "title": "一起猜灯谜",
+                    "imageUrl": "resource/assets/startBtn.png",
+                    "imageUrlId": 0,
+                    "query": "",
+                });
                 self.hide();
             }
         };
@@ -281,11 +286,11 @@ var Main = (function (_super) {
                     case 4:
                         setting = _b.sent();
                         Main.isScopeUserInfo = setting["authSetting"]["scope.userInfo"];
+                        utils.Singleton.get(guess.GameMgr).initData();
                         this.createGameScene();
                         return [4 /*yield*/, platform.getUserInfo()];
                     case 5:
                         userInfo = _b.sent();
-                        console.log(userInfo);
                         return [2 /*return*/];
                 }
             });
@@ -361,7 +366,7 @@ var Main = (function (_super) {
             });
         }
         // 显示转发分享菜单
-        //wx.showShareMenu();
+        wx.showShareMenu({});
         //调用广告
         //  wx.createBannerAd({ adUnitId: "adunit-549b2e8b53ad8e21", style: { left: 0, top: 1280 - 150, width: 720, height: 150} })
     };
@@ -405,6 +410,13 @@ var DebugPlatform = (function () {
             });
         });
     };
+    DebugPlatform.prototype.getUserCloudStorage = function (keyArr) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                return [2 /*return*/, null];
+            });
+        });
+    };
     return DebugPlatform;
 }());
 __reflect(DebugPlatform.prototype, "DebugPlatform", ["Platform"]);
@@ -418,12 +430,6 @@ var guess;
         }
         GameMgr.prototype.onCreate = function () {
             var self = this;
-            self.data = {};
-            self.data.gold = 0;
-            self.data.reachLevel = 1;
-            self.data.passLevels = [];
-            self.data.money = 0;
-            self.data.toDayWatchAdCount = 0;
             self.testMgr = new guess.TestMgr();
         };
         GameMgr.prototype.onDestroy = function () {
@@ -431,9 +437,25 @@ var guess;
             self.testMgr.dispose();
             self.testMgr = null;
         };
+        GameMgr.prototype.initData = function () {
+            var self = this;
+            self.data = {};
+            if (platform.isRunInWX()) {
+                self.data.gold = parseInt(wx.getStorageSync("gold") || 0);
+                self.data.reachLevel = parseInt(wx.getStorageSync("reachLevel") || 0);
+                self.data.money = parseInt(wx.getStorageSync("money") || 0);
+                //self.data.toDayWatchAdCount = info["toDayWatchAdCount"] || 0;		
+            }
+            else {
+                self.data.gold = 0;
+                self.data.reachLevel = 0;
+                self.data.money = 0;
+                //self.data.toDayWatchAdCount = 0;			
+            }
+        };
         GameMgr.prototype.startPlay = function (lv) {
             var self = this;
-            lv = lv || self.getReachMaxLevel();
+            lv = lv || self.getMaxOpenLevel();
             if (!self.checkStage(lv))
                 return;
             self.testMgr.setCurTest(lv);
@@ -448,27 +470,33 @@ var guess;
             var self = this;
             var curLv = self.testMgr.curTest.level;
             // 存储达到的最高关卡
-            if (self.isFirstPassLevel(curLv))
-                self.data.passLevels.push(curLv);
+            if (self.isFirstPassLevel(curLv)) {
+                self.data.reachLevel = curLv;
+                wx.setStorageSync("reachLevel", curLv);
+                if (platform.isRunInWX()) {
+                    var kv = {};
+                    kv["key"] = "level";
+                    kv["value"] = curLv.toString();
+                    wx.setUserCloudStorage({ "KVDataList": [kv], "success": function () {
+                            console.log("分数设置成功");
+                        }, "fail": null, "complete": null });
+                }
+            }
             self.testMgr.setCurTest(curLv + 1);
         };
         // 是否第一次达到
         GameMgr.prototype.isFirstPassLevel = function (lv) {
             var self = this;
-            return self.data.passLevels.indexOf(lv) == -1;
+            return self.data.reachLevel < lv;
         };
         // 是否可以开始某关
         GameMgr.prototype.canStartLevel = function (lv) {
             var self = this;
-            if (lv == 1)
-                return true;
-            // 上一关必须通过
-            return self.data.passLevels.indexOf(lv - 1) != -1;
+            return lv <= self.data.reachLevel + 1;
         };
-        GameMgr.prototype.getReachMaxLevel = function () {
+        GameMgr.prototype.getMaxOpenLevel = function () {
             var self = this;
-            var curMaxLv = self.data.passLevels[self.data.passLevels.length - 1] || 0;
-            return curMaxLv + 1;
+            return self.data.reachLevel + 1;
         };
         GameMgr.prototype.modifyGold = function (count) {
             var self = this;
@@ -476,6 +504,7 @@ var guess;
             if (count == 0)
                 return;
             self.data.gold += count;
+            wx.setStorageSync("gold", self.data.gold);
             utils.EventDispatcher.getInstance().dispatchEvent("goldChanged");
         };
         GameMgr.prototype.costGold = function (count) {
@@ -496,7 +525,7 @@ var guess;
             if (count == 0)
                 return;
             self.data.money += count;
-            utils.EventDispatcher.getInstance().dispatchEvent("moneyChanged");
+            wx.setStorageSync("money", self.data.money);
         };
         // 转盘抽奖
         GameMgr.prototype.draw = function () {
@@ -1280,7 +1309,7 @@ var guess;
             var self = this;
             if (reset)
                 self.pageIdx = 0;
-            var maxLv = utils.Singleton.get(guess.GameMgr).getReachMaxLevel();
+            var maxLv = utils.Singleton.get(guess.GameMgr).getMaxOpenLevel();
             var pageIdx = self.pageIdx || Math.floor(maxLv / 20);
             var level = pageIdx * 20 + 1;
             for (var i = 0, len = self.lstLevel.numItems; i < len; i++) {

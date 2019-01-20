@@ -276,11 +276,11 @@ declare const wx: {
      * 取消监听用户点击右上角菜单的“转发”按钮时触发的事件
      */
     offShareAppMessage(callback: () => void): void;
-    showShareMenu(object: { withShareTicket: boolean, success: (res: any) => void, fail: (res: any) => void, complete: (res: any) => void }): void;
+    showShareMenu(arg:any): void;
     /**
      * 主动拉起转发，进入选择通讯录界面。
      */
-    shareAppMessage(object: { title: string, imageUrl: string, query: string, success: (res: any) => void, fail: (res: any) => void, complete: (res: any) => void }): void;
+    shareAppMessage(object: { title: string, imageUrl: string, imageUrlId:number, query: string}): void;
     updateShareMenu(object: { withShareTicket: boolean, success: (res: any) => void, fail: (res: any) => void, complete: (res: any) => void }): void;
     setEnableDebug(object: { enableDebug: boolean, success: (res: any) => void, fail: (res: any) => void, complete: (res: any) => void }): void;
     /**
@@ -302,7 +302,7 @@ declare const wx: {
     /**
      * wx.getStorage 的同步版本
      */
-    getStorageSync(key: string): Object | string;
+    getStorageSync(key: string): any;
     /**
      * wx.getStorageInfo 的同步版本
      */

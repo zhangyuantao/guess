@@ -44,11 +44,10 @@ class Main extends egret.DisplayObjectContainer {
 
         const setting = await platform.getSetting();  
         Main.isScopeUserInfo = setting["authSetting"]["scope.userInfo"];
-
-        this.createGameScene(); 
         
+        utils.Singleton.get(guess.GameMgr).initData();
+        this.createGameScene(); 
         const userInfo = await platform.getUserInfo();
-        console.log(userInfo);
     }
 
     private async loadResource() {
@@ -113,7 +112,7 @@ class Main extends egret.DisplayObjectContainer {
         }
 
         // 显示转发分享菜单
-        //wx.showShareMenu();
+        wx.showShareMenu({});
     
         
         //调用广告

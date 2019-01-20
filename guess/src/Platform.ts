@@ -11,6 +11,7 @@ declare interface Platform {
     login(): Promise<any>;
     getSetting():Promise<any>;
     getSystemInfo():Promise<any>;
+    getUserCloudStorage(keyArr:string[]):Promise<any>;
     // //被动转发
     // showShareMenu(): Promise<any>;
     // // 被动转发回调监听
@@ -48,6 +49,10 @@ class DebugPlatform implements Platform {
     }
 
     async getSystemInfo(){
+        return null;
+    }
+
+    async getUserCloudStorage(keyArr:string[]):Promise<any>{
         return null;
     }
     

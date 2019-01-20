@@ -5,12 +5,6 @@ module guess {
 
 		public onCreate(){
 			let self = this;
-			self.data = <IGameData>{};
-			self.data.gold = 0;
-			self.data.reachLevel = 1;
-			self.data.passLevels = [];
-			self.data.money = 0;
-			self.data.toDayWatchAdCount = 0;
 			self.testMgr = new TestMgr();
 		}
         
@@ -20,9 +14,26 @@ module guess {
 			self.testMgr = null;
 		}
 
+		public initData(){
+			let self = this;			
+			self.data = <IGameData>{};
+			if(platform.isRunInWX()){	
+				self.data.gold = parseInt(wx.getStorageSync("gold") || 0);
+				self.data.reachLevel = parseInt(wx.getStorageSync("reachLevel") || 0);
+				self.data.money = parseInt(wx.getStorageSync("money") || 0);
+				//self.data.toDayWatchAdCount = info["toDayWatchAdCount"] || 0;		
+			}
+			else{
+				self.data.gold = 0;
+				self.data.reachLevel = 0;
+				self.data.money = 0;
+				//self.data.toDayWatchAdCount = 0;			
+			}
+		}
+
 		public startPlay(lv?:number){
 			let self = this;
-			lv = lv || self.getReachMaxLevel();
+			lv = lv || self.getMaxOpenLevel();
 			if(!self.checkStage(lv))
 				return;
 			self.testMgr.setCurTest(lv);
@@ -41,8 +52,19 @@ module guess {
 			let curLv = self.testMgr.curTest.level;
 			
 			// 存储达到的最高关卡
-			if(self.isFirstPassLevel(curLv))
-				self.data.passLevels.push(curLv);
+			if(self.isFirstPassLevel(curLv)){
+				self.data.reachLevel = curLv;
+				wx.setStorageSync("reachLevel", curLv);
+
+				if(platform.isRunInWX()){
+					let kv = <any>{};
+					kv["key"] = "level";
+					kv["value"] = curLv.toString();
+					wx.setUserCloudStorage({"KVDataList":[kv], "success":function(){ 
+						console.log("分数设置成功");
+					},"fail":null, "complete":null});
+				}
+			}
 
 			self.testMgr.setCurTest(curLv + 1);
 		}
@@ -50,23 +72,18 @@ module guess {
 		// 是否第一次达到
 		public isFirstPassLevel(lv:number){
 			let self = this;
-			return self.data.passLevels.indexOf(lv) == -1;
+			return self.data.reachLevel < lv;
 		}
 
 		// 是否可以开始某关
 		public canStartLevel(lv:number){
-			let self = this;
-			if(lv == 1)
-				return true;
-			
-			// 上一关必须通过
-			return self.data.passLevels.indexOf(lv - 1) != -1;
+			let self = this;			
+			return lv <= self.data.reachLevel + 1;
 		}
 
-		public getReachMaxLevel(){
+		public getMaxOpenLevel(){
 			let self = this;
-			let curMaxLv = self.data.passLevels[self.data.passLevels.length - 1] || 0;
-			return curMaxLv + 1;
+			return self.data.reachLevel + 1;
 		}
 
 		public modifyGold(count:number){
@@ -74,6 +91,8 @@ module guess {
 			count = count || 0;
 			if(count == 0)	return;
 			self.data.gold += count;
+			wx.setStorageSync("gold", self.data.gold);
+
 			utils.EventDispatcher.getInstance().dispatchEvent("goldChanged");
 		}	
 
@@ -97,7 +116,7 @@ module guess {
 			count = count || 0;
 			if(count == 0)	return;
 			self.data.money += count;
-			utils.EventDispatcher.getInstance().dispatchEvent("moneyChanged");
+			wx.setStorageSync("money", self.data.money);
 		}
 
 		// 转盘抽奖
