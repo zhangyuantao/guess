@@ -10,7 +10,9 @@ module guess {
 		private btnStage:fairygui.GButton;
 		private btnRedBag:fairygui.GButton;
 		private btnUnlock:fairygui.GButton;
+		private btnUnlockTip:fairygui.GButton;
 		private btnRank:fairygui.GButton;
+		private btnShare:fairygui.GButton;
 		private lstSelect:fairygui.GList;
 		private lstOption:fairygui.GList;
 		private goldComp:fairygui.GComponent;
@@ -30,7 +32,8 @@ module guess {
 			self.btnStage.removeClickListener(self.onBtnStage, self);
 			self.btnRedBag.removeClickListener(self.onBtnRedBag, self);
 			self.btnUnlock.removeClickListener(self.onBtnUnlock, self);
-			self.btnUnlock.removeClickListener(self.onBtnRank, self);
+			self.btnUnlockTip.removeClickListener(self.onBtnUnlockTip, self);
+			self.btnShare.removeClickListener(self.onBtnShare, self);
 			self.goldComp.removeClickListener(self.onClickGold, self);
 			self.lstSelect.removeEventListener(fairygui.ItemEvent.CLICK, self.onSelectLstClick, self);
 			self.lstOption.removeEventListener(fairygui.ItemEvent.CLICK, self.onOptionLstClick, self);
@@ -74,11 +77,15 @@ module guess {
 			self.btnRedBag = self.contentPane.getChild("btnRedBag").asButton;
 			self.btnUnlock = self.contentPane.getChild("btnUnlock").asButton;
 			self.btnRank = self.contentPane.getChild("btnRank").asButton;
+			self.btnShare = self.contentPane.getChild("btnShare").asButton;
+			self.btnUnlockTip = self.contentPane.getChild("btnUnlockTip").asButton;
 			self.btnBack.addClickListener(self.onBtnBack, self);
 			self.btnStage.addClickListener(self.onBtnStage, self);
 			self.btnRedBag.addClickListener(self.onBtnRedBag, self);
 			self.btnUnlock.addClickListener(self.onBtnUnlock, self);
 			self.btnRank.addClickListener(self.onBtnRank, self);
+			self.btnShare.addClickListener(self.onBtnShare, self);
+			self.btnUnlockTip.addClickListener(self.onBtnUnlockTip, self);
 
 			self.lstSelect = self.contentPane.getChild("lstSelect").asList;
 			self.lstOption = self.contentPane.getChild("lstOption").asList;
@@ -270,8 +277,8 @@ module guess {
 				utils.EventDispatcher.getInstance().removeEventListener("watchAdOk", self.showAnswerTip, self);
 				utils.EventDispatcher.getInstance().once("watchAdOk", self.showAnswerTip, self);
 				// 监听分享到群成功
-				utils.EventDispatcher.getInstance().removeEventListener("shareGroupOk", self.showAnswerTip, self);
-				utils.EventDispatcher.getInstance().once("shareGroupOk", self.showAnswerTip, self);
+				utils.EventDispatcher.getInstance().removeEventListener("shareOk", self.showAnswerTip, self);
+				utils.EventDispatcher.getInstance().once("shareOk", self.showAnswerTip, self);
 				return;
 			}
 
@@ -283,6 +290,31 @@ module guess {
 
 		private onBtnRank(e){
 			MainWindow.instance.showOrHideRankWnd();
+		}
+
+		private onBtnShare(e){
+			let self = this;
+			self.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
+		}
+
+		// 我要更多提示
+		private onBtnUnlockTip(e){
+			let self = this;
+			self.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
+			self.questionPanelDM.unlockTip();
+		}
+
+		public share(title:string, shareImgId:number){
+			if(!platform.isRunInWX())
+				return;
+
+			// 分享
+			wx.shareAppMessage({
+				"title":title,
+				"imageUrl":`resource/assets/share${shareImgId}.png`,
+				"imageUrlId":shareImgId,
+				"query":"",					
+			});
 		}
 
 		private showAnswerTip(){
@@ -299,13 +331,14 @@ module guess {
 			let self = this;
 
 			// 判断是不是首次点击
-			let isFirstClick = true;
+			let isFirstClick = wx.getStorageSync("isFirstClickGold") == "";
 			if(isFirstClick){
+				wx.setStorageSync("isFirstClickGold", "1");
 				let wnd = new FirstShareGroupWindow();
 				wnd.show();
 				wnd.initData();
-				utils.EventDispatcher.getInstance().removeEventListener("shareGroupOk", self.onShareOk, self);
-				utils.EventDispatcher.getInstance().once("shareGroupOk", self.onShareOk, self);
+				utils.EventDispatcher.getInstance().removeEventListener("shareOk", self.onShareOk, self);
+				utils.EventDispatcher.getInstance().once("shareOk", self.onShareOk, self);
 			}
 		}
 

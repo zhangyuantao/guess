@@ -48,16 +48,19 @@ module guess {
 
 				});			
 			}
-			else{ // 分享到群
-
-				wx.shareAppMessage({
-					"title":"一起猜灯谜",
-					"imageUrl":"resource/assets/startBtn.png",
-					"imageUrlId":0,
-					"query":"",					
-				});
-				
+			else{				
 				self.hide();
+				utils.EventDispatcher.getInstance().dispatchEvent("shareOk");
+
+				if(platform.isRunInWX()){
+					// 分享
+					wx.shareAppMessage({
+						"title":"这个经典灯谜难住了朋友圈，据说只有1%的人答对！",
+						"imageUrl":"resource/assets/share2.png",
+						"imageUrlId":0,
+						"query":"",					
+					});
+				}	
 			}
 		}
 

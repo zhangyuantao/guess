@@ -37,8 +37,10 @@ module guess {
 
 		private onbtnShare(e){
 			let self = this;
+			MainWindow.instance.testWnd.share("猜灯谜和元宵更配哦~", 1);
+
 			// 分享到群
-			utils.EventDispatcher.getInstance().dispatchEvent("shareGroupOk");
+			utils.EventDispatcher.getInstance().dispatchEvent("shareOk");
 
 			self.hide();
 		}

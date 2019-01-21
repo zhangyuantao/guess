@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "guess_atlas0,guess,guessConfig_json,testConfig_json,startBtn_png,guess_atlas0_1",
+			"keys": "guess_atlas0,guess,guessConfig_json,testConfig_json,startBtn_png,guess_atlas1,share1_png,share2_png",
 			"name": "preload"
 		}
 	],
@@ -32,9 +32,19 @@
 			"url": "assets/startBtn.png"
 		},
 		{
-			"name": "guess_atlas0_1",
+			"name": "guess_atlas1",
 			"type": "image",
-			"url": "assets/guess_atlas0_1.png"
+			"url": "assets/guess_atlas1.png"
+		},
+		{
+			"name": "share1_png",
+			"type": "image",
+			"url": "assets/share1.png"
+		},
+		{
+			"name": "share2_png",
+			"type": "image",
+			"url": "assets/share2.png"
 		}
 	]
 }

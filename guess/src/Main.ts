@@ -102,17 +102,22 @@ class Main extends egret.DisplayObjectContainer {
         let wnd = new guess.MainWindow("guess");
         wnd.show();
 
+
         if(platform.isRunInWX()){
+            // 启用显示转发分享菜单
+            wx.showShareMenu({withShareTicket:true});
+
+            // 用户点击了“转发”按钮
             wx.onShareAppMessage(() => {
-                // 用户点击了“转发”按钮
                 return {
-                    title: '转发标题'
+                    title:"大家元宵都在猜灯谜！你还在打王者？",
+					imageUrl:"resource/assets/share1.png",
+					imageUrlId:0,
+					query:"",		
                 }
             });
         }
 
-        // 显示转发分享菜单
-        wx.showShareMenu({});
     
         
         //调用广告

@@ -220,13 +220,17 @@ var guess;
                 });
             }
             else {
-                wx.shareAppMessage({
-                    "title": "一起猜灯谜",
-                    "imageUrl": "resource/assets/startBtn.png",
-                    "imageUrlId": 0,
-                    "query": "",
-                });
                 self.hide();
+                utils.EventDispatcher.getInstance().dispatchEvent("shareOk");
+                if (platform.isRunInWX()) {
+                    // 分享
+                    wx.shareAppMessage({
+                        "title": "这个经典灯谜难住了朋友圈，据说只有1%的人答对！",
+                        "imageUrl": "resource/assets/share2.png",
+                        "imageUrlId": 0,
+                        "query": "",
+                    });
+                }
             }
         };
         LackGoldWindow.prototype.onClose = function (e) {
@@ -358,15 +362,18 @@ var Main = (function (_super) {
         var wnd = new guess.MainWindow("guess");
         wnd.show();
         if (platform.isRunInWX()) {
+            // 启用显示转发分享菜单
+            wx.showShareMenu({ withShareTicket: true });
+            // 用户点击了“转发”按钮
             wx.onShareAppMessage(function () {
-                // 用户点击了“转发”按钮
                 return {
-                    title: '转发标题'
+                    title: "大家元宵都在猜灯谜！你还在打王者？",
+                    imageUrl: "resource/assets/share1.png",
+                    imageUrlId: 0,
+                    query: "",
                 };
             });
         }
-        // 显示转发分享菜单
-        wx.showShareMenu({});
         //调用广告
         //  wx.createBannerAd({ adUnitId: "adunit-549b2e8b53ad8e21", style: { left: 0, top: 1280 - 150, width: 720, height: 150} })
     };
@@ -798,8 +805,9 @@ var guess;
         };
         FirstShareGroupWindow.prototype.onbtnShare = function (e) {
             var self = this;
+            guess.MainWindow.instance.testWnd.share("猜灯谜和元宵更配哦~", 1);
             // 分享到群
-            utils.EventDispatcher.getInstance().dispatchEvent("shareGroupOk");
+            utils.EventDispatcher.getInstance().dispatchEvent("shareOk");
             self.hide();
         };
         FirstShareGroupWindow.prototype.onClose = function (e) {
@@ -1063,6 +1071,18 @@ var guess;
             self.txtDMTip1.text = "" + info.tips[0];
             self.txtDMTip2.text = "" + info.tips[1];
             self.txtDMTip3.text = "" + info.tips[2];
+            self.curTipId = info.tipCount;
+            for (var i = 0; i < info.tips.length; i++) {
+                var tmp = i + 1;
+                self["txtDMTip" + tmp].alpha = tmp <= info.tipCount ? 1 : 0;
+            }
+        };
+        QuestionPanelDM.prototype.unlockTip = function () {
+            var self = this;
+            self.curTipId++;
+            var txt = self["txtDMTip" + self.curTipId];
+            if (txt)
+                egret.Tween.get(txt).to({ alpha: 1 }, 500, egret.Ease.sineInOut);
         };
         return QuestionPanelDM;
     }(fairygui.GComponent));
@@ -1386,7 +1406,8 @@ var guess;
             self.btnStage.removeClickListener(self.onBtnStage, self);
             self.btnRedBag.removeClickListener(self.onBtnRedBag, self);
             self.btnUnlock.removeClickListener(self.onBtnUnlock, self);
-            self.btnUnlock.removeClickListener(self.onBtnRank, self);
+            self.btnUnlockTip.removeClickListener(self.onBtnUnlockTip, self);
+            self.btnShare.removeClickListener(self.onBtnShare, self);
             self.goldComp.removeClickListener(self.onClickGold, self);
             self.lstSelect.removeEventListener(fairygui.ItemEvent.CLICK, self.onSelectLstClick, self);
             self.lstOption.removeEventListener(fairygui.ItemEvent.CLICK, self.onOptionLstClick, self);
@@ -1424,11 +1445,15 @@ var guess;
             self.btnRedBag = self.contentPane.getChild("btnRedBag").asButton;
             self.btnUnlock = self.contentPane.getChild("btnUnlock").asButton;
             self.btnRank = self.contentPane.getChild("btnRank").asButton;
+            self.btnShare = self.contentPane.getChild("btnShare").asButton;
+            self.btnUnlockTip = self.contentPane.getChild("btnUnlockTip").asButton;
             self.btnBack.addClickListener(self.onBtnBack, self);
             self.btnStage.addClickListener(self.onBtnStage, self);
             self.btnRedBag.addClickListener(self.onBtnRedBag, self);
             self.btnUnlock.addClickListener(self.onBtnUnlock, self);
             self.btnRank.addClickListener(self.onBtnRank, self);
+            self.btnShare.addClickListener(self.onBtnShare, self);
+            self.btnUnlockTip.addClickListener(self.onBtnUnlockTip, self);
             self.lstSelect = self.contentPane.getChild("lstSelect").asList;
             self.lstOption = self.contentPane.getChild("lstOption").asList;
             self.lstSelect.addEventListener(fairygui.ItemEvent.CLICK, self.onSelectLstClick, self);
@@ -1587,8 +1612,8 @@ var guess;
                 utils.EventDispatcher.getInstance().removeEventListener("watchAdOk", self.showAnswerTip, self);
                 utils.EventDispatcher.getInstance().once("watchAdOk", self.showAnswerTip, self);
                 // 监听分享到群成功
-                utils.EventDispatcher.getInstance().removeEventListener("shareGroupOk", self.showAnswerTip, self);
-                utils.EventDispatcher.getInstance().once("shareGroupOk", self.showAnswerTip, self);
+                utils.EventDispatcher.getInstance().removeEventListener("shareOk", self.showAnswerTip, self);
+                utils.EventDispatcher.getInstance().once("shareOk", self.showAnswerTip, self);
                 return;
             }
             utils.Singleton.get(guess.GameMgr).costGold(cost);
@@ -1597,6 +1622,27 @@ var guess;
         };
         TestWindow.prototype.onBtnRank = function (e) {
             guess.MainWindow.instance.showOrHideRankWnd();
+        };
+        TestWindow.prototype.onBtnShare = function (e) {
+            var self = this;
+            self.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
+        };
+        // 我要更多提示
+        TestWindow.prototype.onBtnUnlockTip = function (e) {
+            var self = this;
+            self.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
+            self.questionPanelDM.unlockTip();
+        };
+        TestWindow.prototype.share = function (title, shareImgId) {
+            if (!platform.isRunInWX())
+                return;
+            // 分享
+            wx.shareAppMessage({
+                "title": title,
+                "imageUrl": "resource/assets/share" + shareImgId + ".png",
+                "imageUrlId": shareImgId,
+                "query": "",
+            });
         };
         TestWindow.prototype.showAnswerTip = function () {
             var self = this;
@@ -1610,13 +1656,14 @@ var guess;
         TestWindow.prototype.onClickGold = function (e) {
             var self = this;
             // 判断是不是首次点击
-            var isFirstClick = true;
+            var isFirstClick = wx.getStorageSync("isFirstClickGold") == "";
             if (isFirstClick) {
+                wx.setStorageSync("isFirstClickGold", "1");
                 var wnd = new guess.FirstShareGroupWindow();
                 wnd.show();
                 wnd.initData();
-                utils.EventDispatcher.getInstance().removeEventListener("shareGroupOk", self.onShareOk, self);
-                utils.EventDispatcher.getInstance().once("shareGroupOk", self.onShareOk, self);
+                utils.EventDispatcher.getInstance().removeEventListener("shareOk", self.onShareOk, self);
+                utils.EventDispatcher.getInstance().once("shareOk", self.onShareOk, self);
             }
         };
         TestWindow.prototype.onShareOk = function () {
