@@ -17,8 +17,10 @@
 const assetsUrl = {
   icon: "openDataContext/assets/icon.png",
   box: "openDataContext/assets/box.png",
+  line: "openDataContext/assets/line.png",
   panel: "openDataContext/assets/panel.png",
-  button: "openDataContext/assets/button.png",
+  preBtn: "openDataContext/assets/preBtn.png",
+  nextBtn: "openDataContext/assets/nextBtn.png",
   title: "openDataContext/assets/rankingtitle.png"
 };
 
@@ -49,20 +51,20 @@ context.globalCompositeOperation = "source-over";
  * 排位序号i会根据parge*perPageNum+i+1进行计算
  */
 let totalGroup = [
-    { seq:0, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 100, time: 1000 }] },
-    { seq: 1, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 101, time: 100 }] },
-    { seq: 2, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 102, time: 1700 }] },
-    { seq: 3, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 103, time: 1800 }] },
-    { seq: 4, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 104, time: 1900 }] },
-    { seq: 5, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 105, time: 1070 }] },
-    { seq: 6, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 106, time: 1030 }] },
-    { seq: 7, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 107, time: 1010 }] },
-    { seq: 8, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 108, time: 1020 }] },
-    { seq: 9, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 109, time: 1030 }] },
-    { seq: 10, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 111, time: 1040 }] },
-    { seq: 11, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 112, time: 1050 }] },
-    { seq: 12, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 123, time: 1060 }] },
-    { seq: 13, openId: '', avatarUrl: '', nickName: 'peony', KVDataList: [{ level: 167, time: 1080 }] }
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 200, time: 1000 }] },
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 101, time: 1000 }] },
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 102, time: 1700 }] },
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 103, time: 1800 }] },
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 104, time: 1900 }] },
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 105, time: 1070 }] },
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 106, time: 1030 }] },
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 107, time: 1010 }] },
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 108, time: 1020 }] },
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 109, time: 1030 }] },
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 111, time: 1040 }] },
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 112, time: 1050 }] },
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 123, time: 1060 }] },
+  { openId: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 167, time: 1080 }] }
 ];
 
 
@@ -72,13 +74,14 @@ let totalGroup = [
 function drawRankPanel() {
   //绘制背景
   context_drawImage(assets.panel, offsetX_rankToBorder, offsetY_rankToBorder, rankWidth, rankHeight);
+
   //绘制标题
   const title = assets.title;
   //根据title的宽高计算一下位置;
-  const titleW = title.width / 720 * stageWidth;
-  const titleH = title.height / 1280 * stageHeight;
+  const titleW = getRightWidth(title.width);
+  const titleH = getRightHeight(title.height, title.width);
   const titleX = offsetX_rankToBorder + (rankWidth - titleW) * 0.5;
-  const titleY = offsetY_rankToBorder - 100;
+  const titleY = offsetY_rankToBorder - titleH * 0.51;
   context_drawImage(title, titleX, titleY, titleW, titleH);
   
   //获取当前要渲染的数据组
@@ -86,7 +89,8 @@ function drawRankPanel() {
         keys: ["level"],
         success: function (res) {
            // console.log("好友数据",res);
-            totalGroup = res.data;
+            //totalGroup = res.data;
+
             // 排序
             totalGroup.sort((a, b) => {
                 let a_level = 0;
@@ -131,34 +135,40 @@ function drawRankPanel() {
         },
     })
 }
+
+function getRightWidth(w){
+  return w / 720 * stageWidth;
+}
+
+function getRightHeight(h, refWidth){
+  let rW = getRightWidth(refWidth);
+  return rW / refWidth * h;
+}
+
 /**
  * 根据屏幕大小初始化所有绘制数据
  */
 function init() {
   //排行榜绘制数据初始化,可以在此处进行修改
-  rankWidth = stageWidth * 4 / 5;
-  rankHeight = stageHeight * 4 / 5;
-  barWidth = rankWidth * 4 / 5;
-  barHeight = rankWidth / perPageMaxNum;
+  rankWidth = getRightWidth(assets.panel.width);
+  rankHeight = getRightHeight(assets.panel.height, assets.panel.width);
   offsetX_rankToBorder = (stageWidth - rankWidth) / 2;
   offsetY_rankToBorder = (stageHeight - rankHeight) / 2;
-  preOffsetY = (rankHeight - barHeight) / (perPageMaxNum + 1);
-  fontSize = Math.floor(stageWidth / 25);
-  startX = offsetX_rankToBorder + (rankWidth - barWidth) / 2;
+  preOffsetY = getRightWidth(105);
+  textOffsetY = getRightWidth(20);
+  startX = offsetX_rankToBorder + getRightWidth(40);
   startY = offsetY_rankToBorder + preOffsetY;
-  avatarSize = barHeight - 10;
-  intervalX = barWidth / 20;
-  textOffsetY = (barHeight + fontSize) / 2;
-  textMaxSize = barWidth / 3;
-  indexWidth = context.measureText("99").width;
+  avatarSize = getRightWidth(71);
+  intervalX = getRightWidth(50);
+  textMaxSize = getRightWidth(150);
+  indexWidth = context.measureText("998").width;
 
   //按钮绘制数据初始化
-  buttonWidth = barWidth / 3;
-  buttonHeight = barHeight / 2;
-  buttonOffset = rankWidth / 3;
-  lastButtonX = offsetX_rankToBorder + buttonOffset - buttonWidth;
-  nextButtonX = offsetX_rankToBorder + 2 * buttonOffset;
-  nextButtonY = lastButtonY = offsetY_rankToBorder + rankHeight - 50 - buttonHeight;  
+  buttonWidth = getRightWidth(236);
+  buttonHeight = getRightHeight(88, 36);
+  lastButtonX = offsetX_rankToBorder;
+  nextButtonX = offsetX_rankToBorder + rankWidth - buttonWidth;
+  nextButtonY = lastButtonY = offsetY_rankToBorder + rankHeight + buttonHeight * 0.15;  
   let data = wx.getSystemInfoSync();
   canvasWidth = data.windowWidth;
   canvasHeight = data.windowHeight;
@@ -168,8 +178,8 @@ function init() {
  * 创建两个点击按钮
  */
 function drawButton() {
-  context_drawImage(assets.button, nextButtonX, nextButtonY, buttonWidth, buttonHeight);
-  context_drawImage(assets.button, lastButtonX, lastButtonY, buttonWidth, buttonHeight);
+  context_drawImage(assets.nextBtn, nextButtonX, nextButtonY, buttonWidth, buttonHeight);
+  context_drawImage(assets.preBtn, lastButtonX, lastButtonY, buttonWidth, buttonHeight);
 }
 
 
@@ -188,22 +198,27 @@ function drawRankByGroup(currentGroup) {
  */
 function drawByData(data, i) {
   let x = startX;
-  //绘制底框
-  context_drawImage(assets.box, startX, startY + i * preOffsetY, barWidth, barHeight);
+  //绘制分割线
+  context_drawImage(assets.line, startX, startY + i * preOffsetY, getRightWidth(assets.line.width), 1);
   x += 10;
   //设置字体
-  context.font = fontSize + "px Arial";
+  context.fillStyle = '#0084FF';
+  context.font = "Bold " + getRightWidth(36) + "px Simhei";
   //绘制序号
-  context.fillText(i + 1 + "", x, startY + i * preOffsetY + textOffsetY, textMaxSize);
+  context.fillText(`${page * perPageMaxNum + i + 1}`, x, startY + i * preOffsetY + textOffsetY, textMaxSize);
   x += indexWidth + intervalX;
   //绘制头像  
-    context_drawImage(assets[data.avatarUrl] || assets.icon, x, startY + i * preOffsetY + (barHeight - avatarSize) / 2, avatarSize, avatarSize);
+    context_drawImage(assets[data.avatarUrl] || assets.icon, x, startY + i * preOffsetY - avatarSize / 2, avatarSize, avatarSize);
   x += avatarSize + intervalX;
 
   //绘制名称
-  context.fillText(data.nickname + "", x, startY + i * preOffsetY + textOffsetY, textMaxSize);
+  context.fillStyle = '#0084FF';
+  context.font = getRightWidth(30) + "px Simhei";
+  context.fillText(data.nickname + "", x, startY + i * preOffsetY, textMaxSize);
   x += textMaxSize + intervalX;
   //绘制分数
+  context.fillStyle = '#FFBB17';
+  context.font = "Bold " + getRightWidth(36) + "px Simhei";
   let level = 0;
   for(let i = 0; i < data.KVDataList.length; i++){
       if(data.KVDataList[i]["level"]){
@@ -211,7 +226,11 @@ function drawByData(data, i) {
           break;
       }
   }
-    context.fillText(level + "", x, startY + i * preOffsetY + textOffsetY, textMaxSize);
+  context.fillText(`${level}`, x, startY + i * preOffsetY + textOffsetY, textMaxSize);
+  context.fillStyle = '#B7B7B7';
+  context.font = getRightWidth(24) + "px Simhei";
+  x += getRightWidth(65);
+  context.fillText(`题`, x, startY + i * preOffsetY + textOffsetY, textMaxSize);
 }
 
 /**
@@ -289,7 +308,7 @@ let currentGroup = [];
 /**
  * 每页最多显示个数
  */
-let perPageMaxNum = 5;
+let perPageMaxNum = 6;
 /**
  * 当前页数,默认0为第一页
  */
@@ -305,12 +324,6 @@ let stageHeight;
  */
 let rankWidth;
 let rankHeight;
-
-/**
- * 每个头像条目的大小
- */
-let barWidth;
-let barHeight;
 /**
  * 条目与排行榜边界的水平距离
  */
@@ -353,10 +366,6 @@ let nextButtonY;
  */
 let buttonOffset;
 
-/**
- * 字体大小
- */
-let fontSize;
 /**
  * 文本文字Y轴偏移量
  * 可以使文本相对于图片大小居中
