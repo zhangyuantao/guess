@@ -102,23 +102,35 @@ module guess {
 			}
 		}
 
-		private getRankDesc(reachLv:number){
+		private getRankDesc(level:number){
 			let self = this;
-			let stage = reachLv / 40; // 40关一个段位
-			
+			let stage = 0;
+
+			//40关一个段位
+			let tmp = level / 40;   
+
 			// 大段位名
 			let stageName = "小学生";
-			if(stage > 1)
+			if (tmp > 1){
 				stageName = "中等生";
-			if(stage > 2)
+				stage = 1;
+			}
+			if (tmp > 2){
 				stageName = "优等生";
-			if(stage > 3)
+				stage = 2;
+			}
+			if (tmp > 3){
 				stageName = "学霸";
-			if(stage > 4)
-				stageName = "超级学霸";		
+				stage = 3;
+			}
+			if (tmp > 4){
+				stageName = "超级学霸";
+				stage = 4;
+			}
 
 			// 小段位星数 10关一个小等级
-			let star = Math.ceil((reachLv % 40) / 10);
+			let star = Math.floor((level - stage * 40) / 10);
+			//return { star: star, desc: stageName};
 			
 			let desc = `${stageName}${star}星`;
 			return desc;

@@ -2,6 +2,7 @@ class Main extends egret.DisplayObjectContainer {
     public static systemInfo:any;
     public static userInfoBtn:UserInfoButton;
     public static isScopeUserInfo:boolean;
+    public static myAvatarUrl:string = "";
 
     public constructor() {
         super();
@@ -48,6 +49,7 @@ class Main extends egret.DisplayObjectContainer {
         utils.Singleton.get(guess.GameMgr).initData();
         this.createGameScene(); 
         const userInfo = await platform.getUserInfo();
+        Main.myAvatarUrl = userInfo.avatarUrl;
     }
 
     private async loadResource() {
@@ -88,7 +90,8 @@ class Main extends egret.DisplayObjectContainer {
                 });
 
             Main.userInfoBtn.onTap((res) => {
-                if(res.errMsg == "getUserInfo:ok"){  
+                if(res.errMsg == "getUserInfo:ok"){                     
+                    Main.myAvatarUrl = res.userInfo.avatarUrl;
                     Main.isScopeUserInfo = true;
                     Main.userInfoBtn.hide();   
                     utils.EventDispatcher.getInstance().dispatchEvent("onClickStartBtn");

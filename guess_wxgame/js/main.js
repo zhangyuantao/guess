@@ -295,6 +295,7 @@ var Main = (function (_super) {
                         return [4 /*yield*/, platform.getUserInfo()];
                     case 5:
                         userInfo = _b.sent();
+                        Main.myAvatarUrl = userInfo.avatarUrl;
                         return [2 /*return*/];
                 }
             });
@@ -350,6 +351,7 @@ var Main = (function (_super) {
             });
             Main.userInfoBtn.onTap(function (res) {
                 if (res.errMsg == "getUserInfo:ok") {
+                    Main.myAvatarUrl = res.userInfo.avatarUrl;
                     Main.isScopeUserInfo = true;
                     Main.userInfoBtn.hide();
                     utils.EventDispatcher.getInstance().dispatchEvent("onClickStartBtn");
@@ -377,6 +379,7 @@ var Main = (function (_super) {
         //调用广告
         //  wx.createBannerAd({ adUnitId: "adunit-549b2e8b53ad8e21", style: { left: 0, top: 1280 - 150, width: 720, height: 150} })
     };
+    Main.myAvatarUrl = "";
     return Main;
 }(egret.DisplayObjectContainer));
 __reflect(Main.prototype, "Main");
@@ -854,6 +857,7 @@ var guess;
         function MainWindow(pkgName, windowName) {
             var _this = _super.call(this, pkgName, windowName) || this;
             _this.isShowRank = false;
+            _this.myAvatarUrl = "";
             MainWindow.instance = _this;
             return _this;
         }
@@ -924,7 +928,12 @@ var guess;
             var self = this;
             self.showOrHideRankWnd();
         };
-        MainWindow.prototype.showOrHideRankWnd = function () {
+        /**
+         * 显示或者隐藏排行榜
+         * type： list horizontal vertical
+         */
+        MainWindow.prototype.showOrHideRankWnd = function (type) {
+            if (type === void 0) { type = "horizontal"; }
             var self = this;
             if (!platform.isRunInWX())
                 return;
@@ -951,7 +960,9 @@ var guess;
                     isRanking: self.isShowRank,
                     text: "egret",
                     year: (new Date()).getFullYear(),
-                    command: "open"
+                    command: "open",
+                    myAvatarUrl: Main.myAvatarUrl,
+                    rankType: type
                 });
             }
             else {
@@ -1351,21 +1362,32 @@ var guess;
                 self.btnNext.enabled = false;
             }
         };
-        StageWindow.prototype.getRankDesc = function (reachLv) {
+        StageWindow.prototype.getRankDesc = function (level) {
             var self = this;
-            var stage = reachLv / 40; // 40关一个段位
+            var stage = 0;
+            //40关一个段位
+            var tmp = level / 40;
             // 大段位名
             var stageName = "小学生";
-            if (stage > 1)
+            if (tmp > 1) {
                 stageName = "中等生";
-            if (stage > 2)
+                stage = 1;
+            }
+            if (tmp > 2) {
                 stageName = "优等生";
-            if (stage > 3)
+                stage = 2;
+            }
+            if (tmp > 3) {
                 stageName = "学霸";
-            if (stage > 4)
+                stage = 3;
+            }
+            if (tmp > 4) {
                 stageName = "超级学霸";
+                stage = 4;
+            }
             // 小段位星数 10关一个小等级
-            var star = Math.ceil((reachLv % 40) / 10);
+            var star = Math.floor((level - stage * 40) / 10);
+            //return { star: star, desc: stageName};
             var desc = "" + stageName + star + "\u661F";
             return desc;
         };
@@ -1517,7 +1539,7 @@ var guess;
                 if (isFirstRight) {
                     gainGold = guess.GameCfg.getCfg().TestRewardGold;
                     gameMgr.modifyGold(gainGold);
-                    gameMgr.modifyMoney(gameMgr.testMgr.curTest.money);
+                    //gameMgr.modifyMoney(gameMgr.testMgr.curTest.money);
                 }
                 // 显示结果界面
                 if (!self.resultWnd)
@@ -1525,9 +1547,9 @@ var guess;
                 self.resultWnd.show();
                 self.resultWnd.initData(gainGold);
                 // 显示获得红包
-                if (isFirstRight && gameMgr.testMgr.curTest.money > 0) {
-                    guess.MainWindow.instance.showRedBagWindow(gameMgr.testMgr.curTest.money, "恭喜您获得红包");
-                }
+                //if(isFirstRight && gameMgr.testMgr.curTest.money > 0){					
+                //	MainWindow.instance.showRedBagWindow(gameMgr.testMgr.curTest.money, "恭喜您获得红包");
+                //}
                 utils.EventDispatcher.getInstance().once("onNextTest", function () {
                     self.nextTest();
                 }, self);

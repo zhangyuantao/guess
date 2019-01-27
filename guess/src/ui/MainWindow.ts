@@ -19,6 +19,8 @@ module guess {
 		private rankingListMask:egret.Shape;
 		private rankBitmap:egret.Bitmap;
 
+    	private myAvatarUrl:string = "";
+
 		public constructor(pkgName:string, windowName?:string){
 			super(pkgName, windowName);
 			MainWindow.instance = this;
@@ -100,7 +102,11 @@ module guess {
 			self.showOrHideRankWnd();
 		}
 
-		public showOrHideRankWnd(){
+		/**
+		 * 显示或者隐藏排行榜
+		 * type： list horizontal vertical
+		 */
+		public showOrHideRankWnd(type:string = "horizontal"){
 			let self = this;
 			if(!platform.isRunInWX())
 				return;
@@ -132,7 +138,9 @@ module guess {
 					isRanking: self.isShowRank,
 					text: "egret",
 					year: (new Date()).getFullYear(),
-					command: "open"
+					command: "open",
+					myAvatarUrl:Main.myAvatarUrl,
+					rankType:type
 				});				
 			}
 			else {

@@ -159,7 +159,7 @@ module guess {
 				if(isFirstRight){
 					gainGold = GameCfg.getCfg().TestRewardGold;
 					gameMgr.modifyGold(gainGold);
-					gameMgr.modifyMoney(gameMgr.testMgr.curTest.money);
+					//gameMgr.modifyMoney(gameMgr.testMgr.curTest.money);
 				}
 
 				// 显示结果界面
@@ -169,9 +169,9 @@ module guess {
 				self.resultWnd.initData(gainGold);
 
 				// 显示获得红包
-				if(isFirstRight && gameMgr.testMgr.curTest.money > 0){					
-					MainWindow.instance.showRedBagWindow(gameMgr.testMgr.curTest.money, "恭喜您获得红包");
-				}
+				//if(isFirstRight && gameMgr.testMgr.curTest.money > 0){					
+				//	MainWindow.instance.showRedBagWindow(gameMgr.testMgr.curTest.money, "恭喜您获得红包");
+				//}
 
 				utils.EventDispatcher.getInstance().once("onNextTest", () => {
 					self.nextTest();
