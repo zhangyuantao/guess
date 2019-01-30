@@ -7,9 +7,6 @@ module guess {
 		private txtTip:fairygui.GTextField;
 		private btnNext:fairygui.GButton;
 		private btnInvite:fairygui.GButton;
-		private rankPre:fairygui.GComponent;
-		private rankNxt:fairygui.GComponent;
-		private rankMe:fairygui.GComponent;
 	
 		// 释放
 		public dispose(): void {		
@@ -42,28 +39,42 @@ module guess {
 			self.btnNext = self.contentPane.getChild("btnNext").asButton;
 			self.btnNext.addClickListener(self.onBtnNext, self);
 			self.btnInvite = self.contentPane.getChild("btnInvite").asButton;
-			self.btnInvite.addClickListener(self.onBtnInv, self);
-			self.rankPre = self.contentPane.getChild("rankPre").asCom;	
-			self.rankMe = self.contentPane.getChild("rankMe").asCom;
-			self.rankNxt = self.contentPane.getChild("rankNxt").asCom;
+			self.btnInvite.addClickListener(self.onBtnInv, self);			
 			self.txtGold = self.contentPane.getChild("txtGold").asTextField;
 			self.txtTip = self.contentPane.getChild("txtTip").asTextField;
+		}
+
+		/**
+		 * 显示动画
+		 */
+		protected doShowAnimation(){
+			let self = this;
+			egret.Tween.removeTweens(self.displayObject);
+			egret.Tween.get(self.displayObject).set({alpha:0}).to({alpha:1}, 500, egret.Ease.sineInOut).call(() => {
+				super.onShown();
+			});
 		}
 
 		public initData(gainGold:number){
 			let self = this;
 			self.txtGold.text = `+${gainGold}金币`			
 			self.txtTip.text = gainGold <= 0 ? "(已答对的题不再获得)" : "";
+
+			// 显示排行榜
+			MainWindow.instance.hideRankWnd();
+			MainWindow.instance.showRankWnd("horizontal", 0, false, false);
 		}
 
 		private onBtnNext(e){
 			let self = this;
 			self.hide();
+			MainWindow.instance.hideRankWnd(); // 关闭排行榜
 			utils.EventDispatcher.getInstance().dispatchEvent("onNextTest");
 		}
 
 		private onBtnInv(e){
 			let self = this;
+			MainWindow.instance.share("你的好友邀请你猜灯谜~", 1);
 		}
 	}
 }

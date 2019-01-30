@@ -50,10 +50,12 @@ var guess;
 (function (guess) {
     var BaseWindow = (function (_super) {
         __extends(BaseWindow, _super);
-        function BaseWindow(pkgName, windowName) {
+        function BaseWindow(pkgName, windowName, playPopSound) {
             if (pkgName === void 0) { pkgName = "guess"; }
             var _this = _super.call(this) || this;
+            _this.playPopSound = false;
             var self = _this;
+            self.playPopSound = playPopSound;
             self.registerComponents(); // 要在窗体创建(initUI)之前
             self.initUI(pkgName, windowName); // UI初始化
             self.addEventListeners(); // 事件监听
@@ -96,16 +98,25 @@ var guess;
          * 初始化完成
          */
         BaseWindow.prototype.onInit = function () {
-            console.log("onInit");
             var self = this;
             self.width = egret.MainContext.instance.stage.stageWidth;
             self.height = egret.MainContext.instance.stage.stageHeight;
         };
         /**
+         * 显示动画
+         */
+        BaseWindow.prototype.doShowAnimation = function () {
+            var self = this;
+            if (self.playPopSound) {
+                utils.Singleton.get(utils.SoundMgr).playSound("pop_mp3"); // 弹窗声音
+                console.log("弹窗声音");
+            }
+            self.onShown();
+        };
+        /**
          * 显示完成
          */
         BaseWindow.prototype.onShown = function () {
-            console.log("onShown");
         };
         // 动态调整窗口分辨率
         BaseWindow.prototype.setResolution = function () {
@@ -175,73 +186,75 @@ var guess;
 })(guess || (guess = {}));
 var guess;
 (function (guess) {
-    var LackGoldWindow = (function (_super) {
-        __extends(LackGoldWindow, _super);
-        function LackGoldWindow() {
+    var FirstShareGroupWindow = (function (_super) {
+        __extends(FirstShareGroupWindow, _super);
+        function FirstShareGroupWindow() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         // 释放
-        LackGoldWindow.prototype.dispose = function () {
+        FirstShareGroupWindow.prototype.dispose = function () {
             _super.prototype.dispose.call(this);
             var self = this;
-            self.btnTask.removeClickListener(self.onbtnTask, self);
+            self.btnShare.removeClickListener(self.onbtnShare, self);
             self.btnClose.removeClickListener(self.onClose, self);
         };
-        LackGoldWindow.prototype.initUI = function () {
+        FirstShareGroupWindow.prototype.initUI = function () {
             var self = this;
-            self.contentPane = fairygui.UIPackage.createObject("guess", "LackGoldWindow").asCom;
+            self.contentPane = fairygui.UIPackage.createObject("guess", "FirstShareGroupWindow").asCom;
         };
         /**
          * 初始化完成
          */
-        LackGoldWindow.prototype.onInit = function () {
+        FirstShareGroupWindow.prototype.onInit = function () {
             _super.prototype.onInit.call(this);
             var self = this;
-            self.btnTask = self.contentPane.getChild("btnTask").asButton;
-            self.btnTask.addClickListener(self.onbtnTask, self);
+            self.btnShare = self.contentPane.getChild("btnShare").asButton;
+            self.btnShare.addClickListener(self.onbtnShare, self);
             self.btnClose = self.contentPane.getChild("btnClose").asButton;
             self.btnClose.addClickListener(self.onClose, self);
-            self.txtTip = self.contentPane.getChild("txtTip").asTextField;
+            self.txtGold = self.contentPane.getChild("txtGold").asTextField;
         };
-        LackGoldWindow.prototype.initData = function () {
+        FirstShareGroupWindow.prototype.initData = function () {
             var self = this;
-            if (utils.Singleton.get(guess.AdMgr).adEnable)
-                self.txtTip.text = "观看视频广告可解锁答案";
-            else
-                self.txtTip.text = "分享到群可解锁答案";
+            self.txtGold.text = "+" + guess.GameCfg.getCfg().FirstShareGroupGold + "\u91D1\u5E01";
         };
-        LackGoldWindow.prototype.onbtnTask = function (e) {
+        FirstShareGroupWindow.prototype.onbtnShare = function (e) {
             var self = this;
-            if (utils.Singleton.get(guess.AdMgr).adEnable) {
-                utils.Singleton.get(guess.AdMgr).watchAd(function () {
-                    self.hide();
-                    utils.EventDispatcher.getInstance().dispatchEvent("watchAdOk");
-                }, function () {
-                });
-            }
-            else {
-                self.hide();
-                utils.EventDispatcher.getInstance().dispatchEvent("shareOk");
-                if (platform.isRunInWX()) {
-                    // 分享
-                    wx.shareAppMessage({
-                        "title": "这个经典灯谜难住了朋友圈，据说只有1%的人答对！",
-                        "imageUrl": "resource/assets/share2.png",
-                        "imageUrlId": 0,
-                        "query": "",
-                    });
-                }
-            }
+            guess.MainWindow.instance.share("猜灯谜和元宵更配哦~", 1);
+            // 分享到群
+            utils.EventDispatcher.getInstance().dispatchEvent("shareOk");
+            self.hide();
         };
-        LackGoldWindow.prototype.onClose = function (e) {
+        FirstShareGroupWindow.prototype.onClose = function (e) {
             var self = this;
             self.hide();
         };
-        return LackGoldWindow;
+        return FirstShareGroupWindow;
     }(guess.BaseWindow));
-    guess.LackGoldWindow = LackGoldWindow;
-    __reflect(LackGoldWindow.prototype, "guess.LackGoldWindow");
+    guess.FirstShareGroupWindow = FirstShareGroupWindow;
+    __reflect(FirstShareGroupWindow.prototype, "guess.FirstShareGroupWindow");
 })(guess || (guess = {}));
+var LoadingUI = (function (_super) {
+    __extends(LoadingUI, _super);
+    function LoadingUI() {
+        var _this = _super.call(this) || this;
+        _this.createView();
+        return _this;
+    }
+    LoadingUI.prototype.createView = function () {
+        this.textField = new egret.TextField();
+        this.addChild(this.textField);
+        this.textField.y = 300;
+        this.textField.width = 480;
+        this.textField.height = 100;
+        this.textField.textAlign = "center";
+    };
+    LoadingUI.prototype.onProgress = function (current, total) {
+        this.textField.text = "Loading..." + current + "/" + total;
+    };
+    return LoadingUI;
+}(egret.Sprite));
+__reflect(LoadingUI.prototype, "LoadingUI", ["RES.PromiseTaskReporter"]);
 var Main = (function (_super) {
     __extends(Main, _super);
     function Main() {
@@ -271,7 +284,7 @@ var Main = (function (_super) {
     };
     Main.prototype.runGame = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _a, setting, userInfo;
+            var loginData, _a, setting, userInfo;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0: return [4 /*yield*/, this.loadResource()];
@@ -279,7 +292,7 @@ var Main = (function (_super) {
                         _b.sent();
                         return [4 /*yield*/, platform.login()];
                     case 2:
-                        _b.sent();
+                        loginData = _b.sent();
                         // 读取设备信息
                         _a = Main;
                         return [4 /*yield*/, platform.getSystemInfo()];
@@ -290,14 +303,35 @@ var Main = (function (_super) {
                     case 4:
                         setting = _b.sent();
                         Main.isScopeUserInfo = setting["authSetting"]["scope.userInfo"];
-                        utils.Singleton.get(guess.GameMgr).initData();
+                        // 在getUserInfo执行会导致黑屏
                         this.createGameScene();
                         return [4 /*yield*/, platform.getUserInfo()];
                     case 5:
                         userInfo = _b.sent();
+                        console.log("userInfo:", userInfo);
                         Main.myAvatarUrl = userInfo.avatarUrl;
+                        //const userData = await this.getUserData(userInfo.avatarUrl);
+                        //console.log("userData:", userData);
+                        utils.Singleton.get(guess.GameMgr).initData();
                         return [2 /*return*/];
                 }
+            });
+        });
+    };
+    Main.prototype.getUserData = function (uid) {
+        return __awaiter(this, void 0, void 0, function () {
+            var self;
+            return __generator(this, function (_a) {
+                self = this;
+                return [2 /*return*/, new Promise(function (resolve, reject) {
+                        guess.Http.getInstance().post(self, "https://www.kaimais.cn/selectwe.php", { uid: uid }, function (event) {
+                            var request = event.currentTarget;
+                            console.log("post data : ", request.response);
+                            resolve(request.response);
+                        }, null, function () {
+                            reject();
+                        });
+                    })];
             });
         });
     };
@@ -351,6 +385,7 @@ var Main = (function (_super) {
             });
             Main.userInfoBtn.onTap(function (res) {
                 if (res.errMsg == "getUserInfo:ok") {
+                    console.log(res);
                     Main.myAvatarUrl = res.userInfo.avatarUrl;
                     Main.isScopeUserInfo = true;
                     Main.userInfoBtn.hide();
@@ -361,7 +396,7 @@ var Main = (function (_super) {
         fairygui.UIPackage.addPackage("guess");
         this.stage.addChild(fairygui.GRoot.inst.displayObject);
         this.stage.removeChild(this);
-        var wnd = new guess.MainWindow("guess");
+        var wnd = new guess.MainWindow("guess", "MainWindow", false);
         wnd.show();
         if (platform.isRunInWX()) {
             // 启用显示转发分享菜单
@@ -447,7 +482,7 @@ var guess;
             self.testMgr.dispose();
             self.testMgr = null;
         };
-        GameMgr.prototype.initData = function () {
+        GameMgr.prototype.initData = function (userData) {
             var self = this;
             self.data = {};
             if (platform.isRunInWX()) {
@@ -479,19 +514,6 @@ var guess;
         GameMgr.prototype.nextTest = function () {
             var self = this;
             var curLv = self.testMgr.curTest.level;
-            // 存储达到的最高关卡
-            if (self.isFirstPassLevel(curLv)) {
-                self.data.reachLevel = curLv;
-                wx.setStorageSync("reachLevel", curLv);
-                if (platform.isRunInWX()) {
-                    var kv = {};
-                    kv["key"] = "level";
-                    kv["value"] = curLv.toString();
-                    wx.setUserCloudStorage({ "KVDataList": [kv], "success": function () {
-                            console.log("分数设置成功");
-                        }, "fail": null, "complete": null });
-                }
-            }
             self.testMgr.setCurTest(curLv + 1);
         };
         // 是否第一次达到
@@ -774,56 +796,6 @@ var guess;
 })(guess || (guess = {}));
 var guess;
 (function (guess) {
-    var FirstShareGroupWindow = (function (_super) {
-        __extends(FirstShareGroupWindow, _super);
-        function FirstShareGroupWindow() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        // 释放
-        FirstShareGroupWindow.prototype.dispose = function () {
-            _super.prototype.dispose.call(this);
-            var self = this;
-            self.btnShare.removeClickListener(self.onbtnShare, self);
-            self.btnClose.removeClickListener(self.onClose, self);
-        };
-        FirstShareGroupWindow.prototype.initUI = function () {
-            var self = this;
-            self.contentPane = fairygui.UIPackage.createObject("guess", "FirstShareGroupWindow").asCom;
-        };
-        /**
-         * 初始化完成
-         */
-        FirstShareGroupWindow.prototype.onInit = function () {
-            _super.prototype.onInit.call(this);
-            var self = this;
-            self.btnShare = self.contentPane.getChild("btnShare").asButton;
-            self.btnShare.addClickListener(self.onbtnShare, self);
-            self.btnClose = self.contentPane.getChild("btnClose").asButton;
-            self.btnClose.addClickListener(self.onClose, self);
-            self.txtGold = self.contentPane.getChild("txtGold").asTextField;
-        };
-        FirstShareGroupWindow.prototype.initData = function () {
-            var self = this;
-            self.txtGold.text = "+" + guess.GameCfg.getCfg().FirstShareGroupGold + "\u91D1\u5E01";
-        };
-        FirstShareGroupWindow.prototype.onbtnShare = function (e) {
-            var self = this;
-            guess.MainWindow.instance.testWnd.share("猜灯谜和元宵更配哦~", 1);
-            // 分享到群
-            utils.EventDispatcher.getInstance().dispatchEvent("shareOk");
-            self.hide();
-        };
-        FirstShareGroupWindow.prototype.onClose = function (e) {
-            var self = this;
-            self.hide();
-        };
-        return FirstShareGroupWindow;
-    }(guess.BaseWindow));
-    guess.FirstShareGroupWindow = FirstShareGroupWindow;
-    __reflect(FirstShareGroupWindow.prototype, "guess.FirstShareGroupWindow");
-})(guess || (guess = {}));
-var guess;
-(function (guess) {
     var GameCfg = (function () {
         function GameCfg() {
         }
@@ -847,6 +819,75 @@ var guess;
     guess.GameCfg = GameCfg;
     __reflect(GameCfg.prototype, "guess.GameCfg");
 })(guess || (guess = {}));
+var guess;
+(function (guess) {
+    var LackGoldWindow = (function (_super) {
+        __extends(LackGoldWindow, _super);
+        function LackGoldWindow() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        // 释放
+        LackGoldWindow.prototype.dispose = function () {
+            _super.prototype.dispose.call(this);
+            var self = this;
+            self.btnTask.removeClickListener(self.onbtnTask, self);
+            self.btnClose.removeClickListener(self.onClose, self);
+        };
+        LackGoldWindow.prototype.initUI = function () {
+            var self = this;
+            self.contentPane = fairygui.UIPackage.createObject("guess", "LackGoldWindow").asCom;
+        };
+        /**
+         * 初始化完成
+         */
+        LackGoldWindow.prototype.onInit = function () {
+            _super.prototype.onInit.call(this);
+            var self = this;
+            self.btnTask = self.contentPane.getChild("btnTask").asButton;
+            self.btnTask.addClickListener(self.onbtnTask, self);
+            self.btnClose = self.contentPane.getChild("btnClose").asButton;
+            self.btnClose.addClickListener(self.onClose, self);
+            self.txtTip = self.contentPane.getChild("txtTip").asTextField;
+        };
+        LackGoldWindow.prototype.initData = function () {
+            var self = this;
+            if (utils.Singleton.get(guess.AdMgr).adEnable)
+                self.txtTip.text = "观看视频广告可解锁答案";
+            else
+                self.txtTip.text = "分享到群可解锁答案";
+        };
+        LackGoldWindow.prototype.onbtnTask = function (e) {
+            var self = this;
+            if (utils.Singleton.get(guess.AdMgr).adEnable) {
+                utils.Singleton.get(guess.AdMgr).watchAd(function () {
+                    self.hide();
+                    utils.EventDispatcher.getInstance().dispatchEvent("watchAdOk");
+                }, function () {
+                });
+            }
+            else {
+                self.hide();
+                utils.EventDispatcher.getInstance().dispatchEvent("shareOk");
+                if (platform.isRunInWX()) {
+                    // 分享
+                    wx.shareAppMessage({
+                        "title": "这个经典灯谜难住了朋友圈，据说只有1%的人答对！",
+                        "imageUrl": "resource/assets/share2.png",
+                        "imageUrlId": 0,
+                        "query": "",
+                    });
+                }
+            }
+        };
+        LackGoldWindow.prototype.onClose = function (e) {
+            var self = this;
+            self.hide();
+        };
+        return LackGoldWindow;
+    }(guess.BaseWindow));
+    guess.LackGoldWindow = LackGoldWindow;
+    __reflect(LackGoldWindow.prototype, "guess.LackGoldWindow");
+})(guess || (guess = {}));
 /**
  * 主游戏入口
  */
@@ -854,8 +895,8 @@ var guess;
 (function (guess) {
     var MainWindow = (function (_super) {
         __extends(MainWindow, _super);
-        function MainWindow(pkgName, windowName) {
-            var _this = _super.call(this, pkgName, windowName) || this;
+        function MainWindow(pkgName, windowName, playPopSound) {
+            var _this = _super.call(this, pkgName, windowName, playPopSound) || this;
             _this.isShowRank = false;
             _this.myAvatarUrl = "";
             MainWindow.instance = _this;
@@ -868,7 +909,8 @@ var guess;
             self.btnStage.removeClickListener(self.onBtnStage, self);
             self.btnDraw.removeClickListener(self.onBtnDraw, self);
             self.btnRank.removeClickListener(self.onBtnRank, self);
-            self.btnCloseRank.removeClickListener(self.onBtnRank, self);
+            self.btnShare.removeClickListener(self.onBtnShare, self);
+            self.btnCloseRank.removeClickListener(self.onCloseRank, self);
             utils.EventDispatcher.getInstance().removeEventListener("startStage", self.onStartStage, self);
             utils.EventDispatcher.getInstance().removeEventListener("onClickStartBtn", self.onBtnStart, self);
         };
@@ -902,8 +944,10 @@ var guess;
             self.btnDraw.addClickListener(self.onBtnDraw, self);
             self.btnRank = self.contentPane.getChild("btnRank").asButton;
             self.btnRank.addClickListener(self.onBtnRank, self);
+            self.btnShare = self.contentPane.getChild("btnShare").asButton;
+            self.btnShare.addClickListener(self.onBtnShare, self);
             self.btnCloseRank = self.contentPane.getChild("btnCloseRank").asButton;
-            self.btnCloseRank.addClickListener(self.onBtnRank, self);
+            self.btnCloseRank.addClickListener(self.onCloseRank, self);
         };
         MainWindow.prototype.onBtnStart = function (e) {
             var self = this;
@@ -926,34 +970,66 @@ var guess;
         };
         MainWindow.prototype.onBtnRank = function (e) {
             var self = this;
-            self.showOrHideRankWnd();
+            self.showRankWnd();
+        };
+        MainWindow.prototype.onBtnShare = function (e) {
+            var self = this;
+            self.share("你知道元宵猜灯谜的由来吗？让我告诉你！", 1);
+        };
+        MainWindow.prototype.onCloseRank = function (e) {
+            var self = this;
+            self.hideRankWnd();
+            if (self.lastRankType == "vertical" && self.testWnd.isShowing)
+                self.showRankWnd("vertical", 0, false, false);
         };
         /**
-         * 显示或者隐藏排行榜
+         * 分享
+         */
+        MainWindow.prototype.share = function (title, shareImgId) {
+            if (!platform.isRunInWX())
+                return;
+            // 分享
+            wx.shareAppMessage({
+                "title": title,
+                "imageUrl": "resource/assets/share" + shareImgId + ".png",
+                "imageUrlId": shareImgId,
+                "query": "",
+            });
+        };
+        /**
+         * 显示排行榜
          * type： list horizontal vertical
          */
-        MainWindow.prototype.showOrHideRankWnd = function (type) {
-            if (type === void 0) { type = "horizontal"; }
+        MainWindow.prototype.showRankWnd = function (type, maskAlpha, maskTouchEnabled, showCloseRankBnt) {
+            if (type === void 0) { type = "list"; }
+            if (maskAlpha === void 0) { maskAlpha = 0.8; }
+            if (maskTouchEnabled === void 0) { maskTouchEnabled = true; }
+            if (showCloseRankBnt === void 0) { showCloseRankBnt = true; }
             var self = this;
             if (!platform.isRunInWX())
                 return;
             if (!self.isShowRank) {
+                self.lastRankType = self.curRankType;
+                self.curRankType = type;
                 Main.userInfoBtn && Main.userInfoBtn.hide();
                 //处理遮罩,避免开放域数据影响主域
                 self.rankingListMask = new egret.Shape();
                 self.rankingListMask.graphics.beginFill(0x000000);
                 self.rankingListMask.graphics.drawRect(0, 0, utils.StageUtils.stageWidth, utils.StageUtils.stageHeight);
                 self.rankingListMask.graphics.endFill();
-                self.rankingListMask.alpha = 0.8;
+                self.rankingListMask.alpha = maskAlpha;
                 //设置为true,以免触摸到下面的按钮
-                self.rankingListMask.touchEnabled = true;
+                self.rankingListMask.touchEnabled = maskTouchEnabled;
                 self.parent.displayListContainer.addChildAt(self.rankingListMask, 999);
                 //显示开放域数据
                 self.rankBitmap = platform.openDataContext.createDisplayObject(null, utils.StageUtils.stageWidth, utils.StageUtils.stageHeight);
                 self.parent.displayListContainer.addChild(self.rankBitmap);
+                egret.Tween.get(self.rankBitmap).set({ alpha: 0 }).to({ alpha: 1 }, 500, egret.Ease.sineInOut);
                 //让关闭排行榜按钮显示在容器内
-                self.btnCloseRank.visible = true;
-                self.parent.displayListContainer.addChild(self.btnCloseRank.displayObject);
+                if (showCloseRankBnt) {
+                    self.btnCloseRank.visible = true;
+                    self.parent.displayListContainer.addChild(self.btnCloseRank.displayObject);
+                }
                 //主域向子域发送数据
                 self.isShowRank = true;
                 platform.openDataContext.postMessage({
@@ -964,8 +1040,20 @@ var guess;
                     myAvatarUrl: Main.myAvatarUrl,
                     rankType: type
                 });
+                if (type == "list")
+                    utils.Singleton.get(utils.SoundMgr).playSound("pop_mp3"); // 弹窗声音			
             }
-            else {
+        };
+        /**
+         * 隐藏排行榜
+         */
+        MainWindow.prototype.hideRankWnd = function () {
+            var self = this;
+            if (!platform.isRunInWX())
+                return;
+            if (self.isShowRank) {
+                if (self.rankBitmap)
+                    egret.Tween.removeTweens(self.rankBitmap);
                 self.rankBitmap.parent && self.rankBitmap.parent.removeChild(self.rankBitmap);
                 self.rankingListMask.parent && self.rankingListMask.parent.removeChild(self.rankingListMask);
                 self.isShowRank = false;
@@ -982,7 +1070,7 @@ var guess;
         MainWindow.prototype.showStageWindow = function () {
             var self = this;
             if (!self.stageWnd)
-                self.stageWnd = new guess.StageWindow("guess");
+                self.stageWnd = new guess.StageWindow("guess", "StageWindow", true);
             self.stageWnd.show();
             self.stageWnd.initData(true);
         };
@@ -999,22 +1087,37 @@ var guess;
             var self = this;
             if (!self.testWnd)
                 self.testWnd = new guess.TestWindow("guess");
+            if (self.testWnd.isShowing)
+                self.testWnd.hide();
             self.testWnd.show();
             self.testWnd.initData();
         };
         MainWindow.prototype.showRedBagWindow = function (money, title) {
             var self = this;
             if (!self.redbag)
-                self.redbag = new guess.RedBagWindow("guess");
+                self.redbag = new guess.RedBagWindow("guess", "RedBagWindow", true);
+            if (self.redbag.isShowing)
+                self.redbag.hide();
             self.redbag.show();
             self.redbag.initData(money || utils.Singleton.get(guess.GameMgr).data.money, title || "您当前共有红包");
         };
         MainWindow.prototype.showDrawWindow = function () {
             var self = this;
             if (!self.drawWnd)
-                self.drawWnd = new guess.DrawWindow("guess");
+                self.drawWnd = new guess.DrawWindow("guess", "DrawWindow", true);
+            if (self.drawWnd.isShowing)
+                self.drawWnd.hide();
             self.drawWnd.show();
             self.drawWnd.initData({});
+        };
+        MainWindow.prototype.showResultWindow = function (data) {
+            var self = this;
+            if (!self.resultWnd)
+                self.resultWnd = new guess.ResultWindow("guess");
+            if (self.resultWnd.isShowing)
+                self.resultWnd.hide();
+            self.resultWnd.show();
+            self.resultWnd.initData(data);
         };
         return MainWindow;
     }(guess.BaseWindow));
@@ -1216,24 +1319,37 @@ var guess;
             self.btnNext.addClickListener(self.onBtnNext, self);
             self.btnInvite = self.contentPane.getChild("btnInvite").asButton;
             self.btnInvite.addClickListener(self.onBtnInv, self);
-            self.rankPre = self.contentPane.getChild("rankPre").asCom;
-            self.rankMe = self.contentPane.getChild("rankMe").asCom;
-            self.rankNxt = self.contentPane.getChild("rankNxt").asCom;
             self.txtGold = self.contentPane.getChild("txtGold").asTextField;
             self.txtTip = self.contentPane.getChild("txtTip").asTextField;
+        };
+        /**
+         * 显示动画
+         */
+        ResultWindow.prototype.doShowAnimation = function () {
+            var _this = this;
+            var self = this;
+            egret.Tween.removeTweens(self.displayObject);
+            egret.Tween.get(self.displayObject).set({ alpha: 0 }).to({ alpha: 1 }, 500, egret.Ease.sineInOut).call(function () {
+                _super.prototype.onShown.call(_this);
+            });
         };
         ResultWindow.prototype.initData = function (gainGold) {
             var self = this;
             self.txtGold.text = "+" + gainGold + "\u91D1\u5E01";
             self.txtTip.text = gainGold <= 0 ? "(已答对的题不再获得)" : "";
+            // 显示排行榜
+            guess.MainWindow.instance.hideRankWnd();
+            guess.MainWindow.instance.showRankWnd("horizontal", 0, false, false);
         };
         ResultWindow.prototype.onBtnNext = function (e) {
             var self = this;
             self.hide();
+            guess.MainWindow.instance.hideRankWnd(); // 关闭排行榜
             utils.EventDispatcher.getInstance().dispatchEvent("onNextTest");
         };
         ResultWindow.prototype.onBtnInv = function (e) {
             var self = this;
+            guess.MainWindow.instance.share("你的好友邀请你猜灯谜~", 1);
         };
         return ResultWindow;
     }(guess.BaseWindow));
@@ -1260,7 +1376,8 @@ var guess;
             self.txtLv.text = lv + "";
             var testInfo = guess.GameCfg.getTestInfo(self.level);
             self.lockCtrl.setSelectedIndex((lock || !testInfo) ? 1 : 0);
-            self.hasRedbagCtrl.setSelectedIndex((testInfo && testInfo.money >= 0) ? 1 : 0);
+            //self.hasRedbagCtrl.setSelectedIndex((testInfo && testInfo.money >= 0) ? 1 : 0); // 红包先隐藏
+            self.hasRedbagCtrl.setSelectedIndex(0);
         };
         return StageItem;
     }(fairygui.GComponent));
@@ -1323,6 +1440,11 @@ var guess;
             }
             utils.EventDispatcher.getInstance().dispatchEvent("startStage", item.level);
             self.hide();
+        };
+        StageWindow.prototype.hide = function () {
+            _super.prototype.hide.call(this);
+            if (guess.MainWindow.instance.testWnd && guess.MainWindow.instance.testWnd.isShowing)
+                guess.MainWindow.instance.showRankWnd("vertical", 0, false, false);
         };
         StageWindow.prototype.prePage = function () {
             var self = this;
@@ -1535,17 +1657,23 @@ var guess;
             if (isRight) {
                 // 首次答对加金币/红包
                 var gainGold = 0;
-                var isFirstRight = gameMgr.isFirstPassLevel(gameMgr.testMgr.curTest.level);
+                var curLv = gameMgr.testMgr.curTest.level;
+                var isFirstRight = gameMgr.isFirstPassLevel(curLv);
                 if (isFirstRight) {
                     gainGold = guess.GameCfg.getCfg().TestRewardGold;
                     gameMgr.modifyGold(gainGold);
                     //gameMgr.modifyMoney(gameMgr.testMgr.curTest.money);
+                    // 存储达到的最高关卡
+                    gameMgr.data.reachLevel = curLv;
+                    wx.setStorageSync("reachLevel", curLv);
+                    if (platform.isRunInWX()) {
+                        wx.setUserCloudStorage({ KVDataList: [{ key: 'level', value: "" + curLv }], success: function (res) {
+                                console.log("分数设置成功:", res);
+                            }, "fail": null, "complete": null });
+                    }
                 }
                 // 显示结果界面
-                if (!self.resultWnd)
-                    self.resultWnd = new guess.ResultWindow("guess");
-                self.resultWnd.show();
-                self.resultWnd.initData(gainGold);
+                guess.MainWindow.instance.showResultWindow(gainGold);
                 // 显示获得红包
                 //if(isFirstRight && gameMgr.testMgr.curTest.money > 0){					
                 //	MainWindow.instance.showRedBagWindow(gameMgr.testMgr.curTest.money, "恭喜您获得红包");
@@ -1553,6 +1681,7 @@ var guess;
                 utils.EventDispatcher.getInstance().once("onNextTest", function () {
                     self.nextTest();
                 }, self);
+                utils.Singleton.get(utils.SoundMgr).playSound("right_mp3"); // 答对声音
             }
             else {
                 // 错误提示
@@ -1563,6 +1692,7 @@ var guess;
                     .call(function () {
                     self.wrongTip.visible = false;
                 });
+                //utils.Singleton.get(utils.SoundMgr).playSound("wrong_mp3"); // 答错声音
             }
         };
         TestWindow.prototype.onShown = function () {
@@ -1584,6 +1714,8 @@ var guess;
             // 不同题目类型显示控制
             //if(testInfo)		
             //	self.themCtrl.setSelectedIndex(testInfo.type == "people" ? 0 : 1);
+            guess.MainWindow.instance.hideRankWnd();
+            guess.MainWindow.instance.showRankWnd("vertical", 0, false, false);
         };
         TestWindow.prototype.refreshGold = function () {
             var self = this;
@@ -1610,8 +1742,13 @@ var guess;
             var self = this;
             self.hide();
         };
+        TestWindow.prototype.hide = function () {
+            _super.prototype.hide.call(this);
+            guess.MainWindow.instance.hideRankWnd();
+        };
         TestWindow.prototype.onBtnStage = function (e) {
             var self = this;
+            guess.MainWindow.instance.hideRankWnd();
             guess.MainWindow.instance.showStageWindow();
         };
         TestWindow.prototype.onBtnRedBag = function (e) {
@@ -1643,28 +1780,18 @@ var guess;
             self.showAnswerTip();
         };
         TestWindow.prototype.onBtnRank = function (e) {
-            guess.MainWindow.instance.showOrHideRankWnd();
+            guess.MainWindow.instance.hideRankWnd();
+            guess.MainWindow.instance.showRankWnd();
         };
         TestWindow.prototype.onBtnShare = function (e) {
             var self = this;
-            self.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
+            guess.MainWindow.instance.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
         };
         // 我要更多提示
         TestWindow.prototype.onBtnUnlockTip = function (e) {
             var self = this;
-            self.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
+            guess.MainWindow.instance.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
             self.questionPanelDM.unlockTip();
-        };
-        TestWindow.prototype.share = function (title, shareImgId) {
-            if (!platform.isRunInWX())
-                return;
-            // 分享
-            wx.shareAppMessage({
-                "title": title,
-                "imageUrl": "resource/assets/share" + shareImgId + ".png",
-                "imageUrlId": shareImgId,
-                "query": "",
-            });
         };
         TestWindow.prototype.showAnswerTip = function () {
             var self = this;
@@ -1681,7 +1808,7 @@ var guess;
             var isFirstClick = wx.getStorageSync("isFirstClickGold") == "";
             if (isFirstClick) {
                 wx.setStorageSync("isFirstClickGold", "1");
-                var wnd = new guess.FirstShareGroupWindow();
+                var wnd = new guess.FirstShareGroupWindow("guess", "FirstShareGroupWindow", true);
                 wnd.show();
                 wnd.initData();
                 utils.EventDispatcher.getInstance().removeEventListener("shareOk", self.onShareOk, self);
@@ -1721,27 +1848,51 @@ var guess;
     guess.TipItem = TipItem;
     __reflect(TipItem.prototype, "guess.TipItem");
 })(guess || (guess = {}));
-var LoadingUI = (function (_super) {
-    __extends(LoadingUI, _super);
-    function LoadingUI() {
-        var _this = _super.call(this) || this;
-        _this.createView();
-        return _this;
-    }
-    LoadingUI.prototype.createView = function () {
-        this.textField = new egret.TextField();
-        this.addChild(this.textField);
-        this.textField.y = 300;
-        this.textField.width = 480;
-        this.textField.height = 100;
-        this.textField.textAlign = "center";
-    };
-    LoadingUI.prototype.onProgress = function (current, total) {
-        this.textField.text = "Loading..." + current + "/" + total;
-    };
-    return LoadingUI;
-}(egret.Sprite));
-__reflect(LoadingUI.prototype, "LoadingUI", ["RES.PromiseTaskReporter"]);
+var guess;
+(function (guess) {
+    var Http = (function () {
+        function Http() {
+        }
+        Http.getInstance = function () {
+            if (!Http.instance)
+                Http.instance = new Http();
+            return Http.instance;
+        };
+        /***********GET************/
+        Http.prototype.get = function (thisObj, url, onComplete, onProgress, onError) {
+            var request = new egret.HttpRequest();
+            request.responseType = egret.HttpResponseType.TEXT;
+            request.open(url, egret.HttpMethod.GET);
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            request.send();
+            if (onComplete)
+                request.once(egret.Event.COMPLETE, onComplete, thisObj);
+            if (onError)
+                request.once(egret.IOErrorEvent.IO_ERROR, onError, thisObj);
+            if (onProgress)
+                request.once(egret.ProgressEvent.PROGRESS, onProgress, thisObj);
+        };
+        /***********POST************/
+        Http.prototype.post = function (thisObj, url, data, onComplete, onProgress, onError) {
+            var request = new egret.HttpRequest();
+            request.responseType = egret.HttpResponseType.TEXT;
+            //设置为 POST 请求
+            request.open(url, egret.HttpMethod.POST);
+            request.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+            request.setRequestHeader("Access-Control-Allow-Origin", "*");
+            request.send(data);
+            if (onComplete)
+                request.once(egret.Event.COMPLETE, onComplete, thisObj);
+            if (onError)
+                request.once(egret.IOErrorEvent.IO_ERROR, onError, thisObj);
+            if (onProgress)
+                request.once(egret.ProgressEvent.PROGRESS, onProgress, thisObj);
+        };
+        return Http;
+    }());
+    guess.Http = Http;
+    __reflect(Http.prototype, "guess.Http");
+})(guess || (guess = {}));
 var guess;
 (function (guess) {
     var WordItemSmall = (function (_super) {

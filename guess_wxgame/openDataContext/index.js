@@ -25,6 +25,7 @@ const assetsUrl = {
   top2: "openDataContext/assets/top2.png",
   top3: "openDataContext/assets/top3.png",
   star: "openDataContext/assets/star.png",
+  rankback: "openDataContext/assets/rankback.png",
 };
 
 /**
@@ -53,7 +54,7 @@ context.globalCompositeOperation = "source-over";
  * 排位序号i会根据parge*perPageNum+i+1进行计算
  */
 let totalGroup = [
-  { openid: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 200, time: 1000 }] },
+  { openid: '', avatarUrl: '', nickname: 'MY', KVDataList: [{ level: 200, time: 1000 }] },
   { openid: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 101, time: 1000 }] },
   { openid: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 102, time: 1700 }] },
   { openid: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 103, time: 1800 }] },
@@ -69,6 +70,9 @@ let totalGroup = [
   { openid: '', avatarUrl: '', nickname: 'peony', KVDataList: [{ level: 167, time: 1080 }] }
 ];
 
+/**我的排行数据 */
+let myRankInfo;
+let myRank;
 
 /**
  * 创建排行榜
@@ -88,31 +92,28 @@ function drawRankPanel() {
   
   //获取当前要渲染的数据组
    wx.getFriendCloudStorage({
-        keys: ["level"],
+      keyList: ["level"],
         success: function (res) {
             console.log("好友数据",res);
             totalGroup = res.data;
 
             // 排序
             totalGroup.sort((a, b) => {
-                let a_level = 0;
-                for (let i = 0; i < a.KVDataList.length; i++) {
-                    if (a.KVDataList[i]["level"]) {
-                        a_level = a.KVDataList[i]["level"];
-                        break;
-                    }
-                }
-                let b_level = 0;
-                for (let i = 0; i < b.KVDataList.length; i++) {
-                    if (b.KVDataList[i]["level"]) {
-                        b_level = b.KVDataList[i]["level"];
-                        break;
-                    }
-                }
-                if(a_level > b_level) return -1;
-                else if (a_level == b_level) return 0;
-                else return 1;
+              let a_level = getLevelFromKVList(a.KVDataList);                
+              let b_level = getLevelFromKVList(b.KVDataList);            
+              if(a_level > b_level) return -1;
+              else if (a_level == b_level) return 0;
+              else return 1;
             });
+
+            // 找到我的数据
+            for (let i = 0, len = totalGroup.length; i < len; i++) {
+             let info = totalGroup[i];
+              if (info.avatarUrl == myAvatarUrl) {
+                myRankInfo = info;
+                myRank = i + 1;
+              }
+            }
 
             // 取前20
             totalGroup.slice(0, 20);
@@ -126,10 +127,14 @@ function drawRankPanel() {
                 //起始id
                 const startID = perPageMaxNum * page;
                 currentGroup = totalGroup.slice(startID, startID + perPageMaxNum);
-                //创建头像Bar
+                // 列表
                 drawRankByGroup(currentGroup);
+
+                // 创建玩家自己排行条目
+                drawByData(myRankInfo, perPageMaxNum, myRank);
+
                 //创建按钮
-                drawButton()
+                drawButton();
             })            
         },
         fail: function (res) {
@@ -146,26 +151,14 @@ function drawRankByType(rankType){
 
   //获取当前要渲染的数据组
   wx.getFriendCloudStorage({
-    keys: ["level"],
+    keyList: ["level"],
     success: function (res) {
       dataArr = res.data;
 
       // 排序
       dataArr.sort((a, b) => {
-        let a_level = 0;
-        for (let i = 0; i < a.KVDataList.length; i++) {
-          if (a.KVDataList[i]["level"]) {
-            a_level = a.KVDataList[i]["level"];
-            break;
-          }
-        }
-        let b_level = 0;
-        for (let i = 0; i < b.KVDataList.length; i++) {
-          if (b.KVDataList[i]["level"]) {
-            b_level = b.KVDataList[i]["level"];
-            break;
-          }
-        }
+        let a_level = getLevelFromKVList(a.KVDataList);
+        let b_level = getLevelFromKVList(b.KVDataList);
         if (a_level > b_level) return -1;
         else if (a_level == b_level) return 0;
         else return 1;
@@ -203,7 +196,7 @@ function drawRankHGroup(users) {
   let preTxtX = preX + avatarSize * 0.5;
   let meTxtX = meX + avatarSize * 0.5;
   let lastTxtX = lastX + avatarSize * 0.5;
-  let avatarY = stageHeight * 0.5;
+  let avatarY = stageHeight * 0.49;
   let txtY = avatarY + avatarSize * 1.5;
 
   context.textAlign = 'center';
@@ -240,42 +233,44 @@ function drawRankHGroup(users) {
  * 绘制垂直排行榜
  */
 function drawRankVGroup(users) {
-  let meX = (stageWidth - avatarSize) * 0.5;
-  let lastX = meX + avatarSize * 1.55;
-  let preX = meX - avatarSize * 1.55;
-  let preTxtX = preX + avatarSize * 0.5;
-  let meTxtX = meX + avatarSize * 0.5;
-  let lastTxtX = lastX + avatarSize * 0.5;
-  let avatarY = stageHeight * 0.5;
-  let txtY = avatarY + avatarSize * 1.5;
+  let preX = stageWidth * 0.87;
+  let meX = stageWidth * 0.85;
+  let lastX = stageWidth * 0.87;
+  let preY = stageHeight * 0.15;
+  let meY = stageHeight * 0.2;
+  let lastY = stageHeight * 0.25;
+  let avatarSize = getRightWidth(42);
 
-  context.textAlign = 'center';
-  context.fillStyle = '#363636';
-  context.font = "Bold " + getRightWidth(30) + "px Simhei";
+  context.textBaseline = "middle";
+  context.textAlign = "left";
+  context.fillStyle = '#FFFFFF';
+  context.font = "Bold " + getRightWidth(26) + "px Simhei";
 
   // 绘制我的上一名
   if (users["pre"]) {
-    context.textAlign = 'center';
-    drawRoundImage(assets[users["pre"].avatarUrl] || assets.icon, preX, avatarY, avatarSize * 0.5, avatarSize, avatarSize);
+    context.drawImage(assets.rankback, preX - getRightWidth(3), preY - getRightWidth(4), getRightWidth(150), getRightHeight(50, 150));
+    drawRoundImage(assets[users["pre"].avatarUrl] || assets.icon, preX, preY, avatarSize * 0.5, avatarSize, avatarSize);
 
     let level = getLevelFromKVList(users["pre"].KVDataList);
-    context.fillText(level + ``, preTxtX, txtY, avatarSize);
+    context.fillText(level + ``, preX + avatarSize * 1.1, preY + avatarSize * 0.5, avatarSize);
   }
 
   // 绘制我的排名
   if (users["me"]) {
-    drawRoundImage(assets[users["me"].avatarUrl] || assets.icon, meX, avatarY, avatarSize * 0.5, avatarSize, avatarSize);
+    context.drawImage(assets.rankback, meX - getRightWidth(3), meY - getRightWidth(4), getRightWidth(150), getRightHeight(50, 150));
+    drawRoundImage(assets[users["me"].avatarUrl] || assets.icon, meX, meY, avatarSize * 0.5, avatarSize, avatarSize);
 
     let level = getLevelFromKVList(users["me"].KVDataList);
-    context.fillText(level + ``, meTxtX, txtY, avatarSize);
+    context.fillText(level + ``, meX + avatarSize * 1.1, meY + avatarSize * 0.5, avatarSize);
   }
 
   // 绘制我的下一名
   if (users["last"]) {
-    drawRoundImage(assets[users["last"].avatarUrl] || assets.icon, lastX, avatarY, avatarSize * 0.5, avatarSize, avatarSize);
+    context.drawImage(assets.rankback, lastX - getRightWidth(3), lastY - getRightWidth(3), getRightWidth(150), getRightHeight(50, 150));
+    drawRoundImage(assets[users["last"].avatarUrl] || assets.icon, lastX, lastY, avatarSize * 0.5, avatarSize, avatarSize);
 
     let level = getLevelFromKVList(users["last"].KVDataList);
-    context.fillText(level + ``, lastTxtX, txtY, avatarSize);
+    context.fillText(level + ``, lastX + avatarSize * 1.1, lastY + avatarSize * 0.5, avatarSize);
   }
 }
 
@@ -358,7 +353,7 @@ function drawRankByGroup(currentGroup) {
 /**
  * 根据绘制信息以及当前i绘制元素
  */
-function drawByData(data, i) {
+function drawByData(data, i, myRank) {
   let x = startX;
   //绘制分割线
   context_drawImage(assets.line, x, startY + i * preOffsetY + lineOffsetY, getRightWidth(480), getRightHeight(2,assets.line.width));
@@ -368,14 +363,14 @@ function drawByData(data, i) {
   context.font = "Bold " + getRightWidth(36) + "px Simhei";
   //绘制排名
   let num = page * perPageMaxNum + i + 1;
-  if (num <= 3){
+  if (num <= 3 || myRank <= 3){
     // 绘制奖牌
     let medalW = getRightWidth(50);
-    context_drawImage(assets[`top${num}`], x - medalW * 0.26, startY + i * preOffsetY - medalW / 3, medalW, getRightHeight(60, medalW));
-  }   
+    context_drawImage(assets[`top${myRank || num}`], x - medalW * 0.26, startY + i * preOffsetY - medalW / 3, medalW, getRightHeight(60, medalW));
+  }
   else{
     // 绘制序号
-    context.fillText(`${page * perPageMaxNum + i + 1}`, x, startY + i * preOffsetY + textOffsetY, textMaxSize);
+    context.fillText(`${myRank ? myRank : page * perPageMaxNum + i + 1}`, x, startY + i * preOffsetY + textOffsetY, textMaxSize);
   }
   x += indexWidth + intervalX;
   //绘制头像  
@@ -421,8 +416,8 @@ function drawByData(data, i) {
 function getLevelFromKVList(data){
   let level = 0;
   for (let i = 0; i < data.length; i++) {
-    if (data["level"]) {
-      level = data["level"];
+    if (data[i].key == "level") {
+      level = data[i].value;
       break;
     }
   }
@@ -484,7 +479,7 @@ let currentGroup = [];
 /**
  * 每页最多显示个数
  */
-let perPageMaxNum = 6;
+let perPageMaxNum = 5;
 /**
  * 当前页数,默认0为第一页
  */
@@ -634,6 +629,9 @@ function preloadAvatars(assetsUrl, cb) {
       img.src = assetsUrl[idx];
       assets[assetsUrl[idx]] = img;
     }
+
+    if(count == 0)
+      cb();
 }
 
 
@@ -668,6 +666,7 @@ let myUserInfo;
 /** 当前排行榜类型 */
 let curRankType;
 
+
 /*function getMyUserInfo(cb){
   wx.getUserInfo({
     withCredentials: true,
@@ -691,8 +690,11 @@ function addOpenDataContextListener() {
   console.log('增加监听函数')
   wx.onMessage((data) => {
     if (data.command == 'open') {
-      if (data.rankType)
+      if (data.rankType){
         curRankType = data.rankType;
+        renderDirty = true;
+        page = 0;
+      }
       if (!myAvatarUrl && data.myAvatarUrl)
         myAvatarUrl = data.myAvatarUrl;
       if (!hasCreateScene) {

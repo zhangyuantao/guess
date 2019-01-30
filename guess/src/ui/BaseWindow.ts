@@ -3,9 +3,12 @@
  */
 module guess {
 	export class BaseWindow extends fairygui.Window {
-		public constructor(pkgName:string = "guess", windowName?:string) {
+		protected playPopSound:boolean = false;
+
+		public constructor(pkgName:string = "guess", windowName?:string, playPopSound?:boolean) {
 			super();		
 			let self = this;		
+			self.playPopSound = playPopSound;
 			self.registerComponents();  		// 要在窗体创建(initUI)之前
 			self.initUI(pkgName, windowName);	// UI初始化
 			self.addEventListeners();			// 事件监听
@@ -54,17 +57,27 @@ module guess {
 		 * 初始化完成
 		 */		
         protected onInit(){			
-			console.log("onInit");
 			let self = this;
 			self.width = egret.MainContext.instance.stage.stageWidth;
 			self.height = egret.MainContext.instance.stage.stageHeight;
 		}	
-		
+
+		/**
+		 * 显示动画
+		 */
+		protected doShowAnimation(){
+			let self = this;
+			if(self.playPopSound){
+				utils.Singleton.get(utils.SoundMgr).playSound("pop_mp3"); // 弹窗声音
+				console.log("弹窗声音");
+			}
+			self.onShown();
+		}
+
 		/**
 		 * 显示完成
 		 */
-        protected onShown(){			
-			console.log("onShown");
+        protected onShown(){		
 		}
 
 		// 动态调整窗口分辨率

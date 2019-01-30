@@ -1,7 +1,7 @@
 {
 	"groups": [
 		{
-			"keys": "guess_atlas0,guess,guessConfig_json,testConfig_json,startBtn_png,guess_atlas1,share1_png,share2_png",
+			"keys": "guess_atlas0,guess,guessConfig_json,testConfig_json,startBtn_png,guess_atlas1,share1_png,share2_png,pop_mp3,right_mp3",
 			"name": "preload"
 		}
 	],
@@ -45,6 +45,16 @@
 			"name": "share2_png",
 			"type": "image",
 			"url": "assets/share2.png"
+		},
+		{
+			"name": "pop_mp3",
+			"type": "sound",
+			"url": "assets/pop.mp3"
+		},
+		{
+			"name": "right_mp3",
+			"type": "sound",
+			"url": "assets/right.mp3"
 		}
 	]
 }

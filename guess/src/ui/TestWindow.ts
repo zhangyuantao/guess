@@ -18,7 +18,6 @@ module guess {
 		private goldComp:fairygui.GComponent;
 		private txtGold:fairygui.GTextField;
 		private txtLevel:fairygui.GTextField;
-		private resultWnd:ResultWindow;
 		private lackWnd:LackGoldWindow;
 		private wrongTip:fairygui.GComponent;
 
@@ -155,18 +154,26 @@ module guess {
 			if(isRight){				
 				// 首次答对加金币/红包
 				let gainGold = 0;
-				let isFirstRight = gameMgr.isFirstPassLevel(gameMgr.testMgr.curTest.level);
+				let curLv = gameMgr.testMgr.curTest.level;
+				let isFirstRight = gameMgr.isFirstPassLevel(curLv);
 				if(isFirstRight){
 					gainGold = GameCfg.getCfg().TestRewardGold;
 					gameMgr.modifyGold(gainGold);
 					//gameMgr.modifyMoney(gameMgr.testMgr.curTest.money);
+
+					// 存储达到的最高关卡
+					gameMgr.data.reachLevel = curLv;
+					wx.setStorageSync("reachLevel", curLv);
+
+					if(platform.isRunInWX()){
+						wx.setUserCloudStorage({KVDataList:[{key:'level', value:`${curLv}`}], success:function(res){ 
+							console.log("分数设置成功:", res);
+						},"fail":null, "complete":null});
+					}
 				}
 
 				// 显示结果界面
-				if(!self.resultWnd)
-					self.resultWnd = new ResultWindow("guess");
-				self.resultWnd.show();
-				self.resultWnd.initData(gainGold);
+				MainWindow.instance.showResultWindow(gainGold);
 
 				// 显示获得红包
 				//if(isFirstRight && gameMgr.testMgr.curTest.money > 0){					
@@ -176,6 +183,8 @@ module guess {
 				utils.EventDispatcher.getInstance().once("onNextTest", () => {
 					self.nextTest();
 				}, self);
+
+				utils.Singleton.get(utils.SoundMgr).playSound("right_mp3"); // 答对声音
 			}
 			else{
 				// 错误提示
@@ -186,6 +195,8 @@ module guess {
 				.call(() => {
 					self.wrongTip.visible = false;
 				});
+
+				//utils.Singleton.get(utils.SoundMgr).playSound("wrong_mp3"); // 答错声音
 			}
 		}
 
@@ -215,6 +226,9 @@ module guess {
 			// 不同题目类型显示控制
 			//if(testInfo)		
 			//	self.themCtrl.setSelectedIndex(testInfo.type == "people" ? 0 : 1);
+
+			MainWindow.instance.hideRankWnd();
+			MainWindow.instance.showRankWnd("vertical", 0, false, false);
 		}
 		
 		public refreshGold(){
@@ -249,8 +263,14 @@ module guess {
 			self.hide();
 		}
 
+		public hide(){
+			super.hide();
+			MainWindow.instance.hideRankWnd();
+		}
+
 		private onBtnStage(e){
 			let self = this;
+			MainWindow.instance.hideRankWnd();
 			MainWindow.instance.showStageWindow();
 		}
 
@@ -289,32 +309,20 @@ module guess {
 		}
 
 		private onBtnRank(e){
-			MainWindow.instance.showOrHideRankWnd();
+			MainWindow.instance.hideRankWnd();
+			MainWindow.instance.showRankWnd();
 		}
 
 		private onBtnShare(e){
 			let self = this;
-			self.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
+			MainWindow.instance.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
 		}
 
 		// 我要更多提示
 		private onBtnUnlockTip(e){
 			let self = this;
-			self.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
+			MainWindow.instance.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
 			self.questionPanelDM.unlockTip();
-		}
-
-		public share(title:string, shareImgId:number){
-			if(!platform.isRunInWX())
-				return;
-
-			// 分享
-			wx.shareAppMessage({
-				"title":title,
-				"imageUrl":`resource/assets/share${shareImgId}.png`,
-				"imageUrlId":shareImgId,
-				"query":"",					
-			});
 		}
 
 		private showAnswerTip(){
@@ -334,7 +342,7 @@ module guess {
 			let isFirstClick = wx.getStorageSync("isFirstClickGold") == "";
 			if(isFirstClick){
 				wx.setStorageSync("isFirstClickGold", "1");
-				let wnd = new FirstShareGroupWindow();
+				let wnd = new FirstShareGroupWindow("guess", "FirstShareGroupWindow", true);
 				wnd.show();
 				wnd.initData();
 				utils.EventDispatcher.getInstance().removeEventListener("shareOk", self.onShareOk, self);

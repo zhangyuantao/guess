@@ -38,18 +38,38 @@ class Main extends egret.DisplayObjectContainer {
 
     private async runGame() {
         await this.loadResource(); 
-        await platform.login();
+        let loginData = await platform.login();
 
         // 读取设备信息
         Main.systemInfo = await platform.getSystemInfo();
 
         const setting = await platform.getSetting();  
-        Main.isScopeUserInfo = setting["authSetting"]["scope.userInfo"];
-        
-        utils.Singleton.get(guess.GameMgr).initData();
+        Main.isScopeUserInfo = setting["authSetting"]["scope.userInfo"];   
+
+        // 在getUserInfo执行会导致黑屏
         this.createGameScene(); 
+
         const userInfo = await platform.getUserInfo();
+        console.log("userInfo:", userInfo);
         Main.myAvatarUrl = userInfo.avatarUrl;
+
+        //const userData = await this.getUserData(userInfo.avatarUrl);
+        //console.log("userData:", userData);
+
+        utils.Singleton.get(guess.GameMgr).initData();
+    }
+
+    private async getUserData(uid:string){
+        let self = this;
+        return new Promise((resolve:Function, reject:Function) => {
+            guess.Http.getInstance().post(self, "https://www.kaimais.cn/selectwe.php", {uid:uid}, (event:egret.Event) => {
+                var request = <egret.HttpRequest>event.currentTarget;
+                console.log("post data : ",request.response);
+                resolve(request.response);
+            }, null, () => {
+                reject();
+            });
+        });
     }
 
     private async loadResource() {
@@ -90,7 +110,8 @@ class Main extends egret.DisplayObjectContainer {
                 });
 
             Main.userInfoBtn.onTap((res) => {
-                if(res.errMsg == "getUserInfo:ok"){                     
+                if(res.errMsg == "getUserInfo:ok"){
+                    console.log(res);              
                     Main.myAvatarUrl = res.userInfo.avatarUrl;
                     Main.isScopeUserInfo = true;
                     Main.userInfoBtn.hide();   
@@ -102,7 +123,7 @@ class Main extends egret.DisplayObjectContainer {
         fairygui.UIPackage.addPackage("guess");        
         this.stage.addChild(fairygui.GRoot.inst.displayObject);
         this.stage.removeChild(this);
-        let wnd = new guess.MainWindow("guess");
+        let wnd = new guess.MainWindow("guess", "MainWindow", false);
         wnd.show();
 
 

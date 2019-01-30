@@ -14,7 +14,7 @@ module guess {
 			self.testMgr = null;
 		}
 
-		public initData(){
+		public initData(userData?:any){
 			let self = this;			
 			self.data = <IGameData>{};
 			if(platform.isRunInWX()){	
@@ -50,22 +50,6 @@ module guess {
 		public nextTest(){
 			let self = this;
 			let curLv = self.testMgr.curTest.level;
-			
-			// 存储达到的最高关卡
-			if(self.isFirstPassLevel(curLv)){
-				self.data.reachLevel = curLv;
-				wx.setStorageSync("reachLevel", curLv);
-
-				if(platform.isRunInWX()){
-					let kv = <any>{};
-					kv["key"] = "level";
-					kv["value"] = curLv.toString();
-					wx.setUserCloudStorage({"KVDataList":[kv], "success":function(){ 
-						console.log("分数设置成功");
-					},"fail":null, "complete":null});
-				}
-			}
-
 			self.testMgr.setCurTest(curLv + 1);
 		}
 

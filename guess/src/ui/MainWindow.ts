@@ -8,11 +8,13 @@ module guess {
 		public stageWnd:StageWindow;
 		public redbag:RedBagWindow;
 		public drawWnd:DrawWindow;
+		public resultWnd:ResultWindow;
 		private scopeCtrl:fairygui.Controller;
 		private btnStart:fairygui.GButton;
 		private btnStage:fairygui.GButton;
 		private btnDraw:fairygui.GButton;
 		private btnRank:fairygui.GButton;
+		private btnShare:fairygui.GButton;
 		private btnCloseRank:fairygui.GButton;		
 
 		private isShowRank:boolean = false;
@@ -20,9 +22,11 @@ module guess {
 		private rankBitmap:egret.Bitmap;
 
     	private myAvatarUrl:string = "";
+		private curRankType:string;
+		private lastRankType:string;
 
-		public constructor(pkgName:string, windowName?:string){
-			super(pkgName, windowName);
+		public constructor(pkgName:string, windowName?:string, playPopSound?:boolean){
+			super(pkgName, windowName, playPopSound);
 			MainWindow.instance = this;
 		}
 
@@ -33,7 +37,8 @@ module guess {
 			self.btnStage.removeClickListener(self.onBtnStage, self);
 			self.btnDraw.removeClickListener(self.onBtnDraw, self);
 			self.btnRank.removeClickListener(self.onBtnRank, self);	
-			self.btnCloseRank.removeClickListener(self.onBtnRank, self);	
+			self.btnShare.removeClickListener(self.onBtnShare, self);	
+			self.btnCloseRank.removeClickListener(self.onCloseRank, self);	
 			utils.EventDispatcher.getInstance().removeEventListener("startStage", self.onStartStage, self);
 			utils.EventDispatcher.getInstance().removeEventListener("onClickStartBtn", self.onBtnStart, self);
 		}
@@ -70,8 +75,10 @@ module guess {
 			self.btnDraw.addClickListener(self.onBtnDraw, self);
 			self.btnRank = self.contentPane.getChild("btnRank").asButton;
 			self.btnRank.addClickListener(self.onBtnRank, self);
+			self.btnShare = self.contentPane.getChild("btnShare").asButton;
+			self.btnShare.addClickListener(self.onBtnShare, self);
 			self.btnCloseRank = self.contentPane.getChild("btnCloseRank").asButton;
-			self.btnCloseRank.addClickListener(self.onBtnRank, self);
+			self.btnCloseRank.addClickListener(self.onCloseRank, self);
 		}	
 		
 		private onBtnStart(e){
@@ -99,18 +106,48 @@ module guess {
 
 		private onBtnRank(e){
 			let self = this;
-			self.showOrHideRankWnd();
+			self.showRankWnd();
+		}
+
+		private onBtnShare(e){
+			let self = this;
+			self.share("你知道元宵猜灯谜的由来吗？让我告诉你！", 1);
+		}
+
+		private onCloseRank(e){
+			let self = this;			
+			self.hideRankWnd();
+			if(self.lastRankType == "vertical" && self.testWnd.isShowing)
+				self.showRankWnd("vertical", 0, false, false);
 		}
 
 		/**
-		 * 显示或者隐藏排行榜
+		 * 分享
+		 */
+		public share(title:string, shareImgId:number){
+			if(!platform.isRunInWX())
+				return;
+
+			// 分享
+			wx.shareAppMessage({
+				"title":title,
+				"imageUrl":`resource/assets/share${shareImgId}.png`,
+				"imageUrlId":shareImgId,
+				"query":"",					
+			});
+		}
+
+		/**
+		 * 显示排行榜
 		 * type： list horizontal vertical
 		 */
-		public showOrHideRankWnd(type:string = "horizontal"){
+		public showRankWnd(type:string = "list", maskAlpha:number = 0.8, maskTouchEnabled:boolean = true, showCloseRankBnt:boolean = true){
 			let self = this;
 			if(!platform.isRunInWX())
 				return;
 			if(!self.isShowRank) {
+				self.lastRankType = self.curRankType;
+				self.curRankType = type;
 				Main.userInfoBtn && Main.userInfoBtn.hide();
 				
 				//处理遮罩,避免开放域数据影响主域
@@ -118,19 +155,22 @@ module guess {
 				self.rankingListMask.graphics.beginFill(0x000000);
 				self.rankingListMask.graphics.drawRect(0, 0, utils.StageUtils.stageWidth, utils.StageUtils.stageHeight);
 				self.rankingListMask.graphics.endFill();
-				self.rankingListMask.alpha = 0.8;
+				self.rankingListMask.alpha = maskAlpha;
 
 				//设置为true,以免触摸到下面的按钮
-				self.rankingListMask.touchEnabled = true;
+				self.rankingListMask.touchEnabled = maskTouchEnabled;
 				self.parent.displayListContainer.addChildAt(self.rankingListMask, 999);
 				
 				//显示开放域数据
-				self.rankBitmap = platform.openDataContext.createDisplayObject(null, utils.StageUtils.stageWidth, utils.StageUtils.stageHeight);
+				self.rankBitmap = platform.openDataContext.createDisplayObject(null, utils.StageUtils.stageWidth, utils.StageUtils.stageHeight);				
 				self.parent.displayListContainer.addChild(self.rankBitmap);
+				egret.Tween.get(self.rankBitmap).set({alpha:0}).to({alpha:1}, 500, egret.Ease.sineInOut);
 
 				//让关闭排行榜按钮显示在容器内
-				self.btnCloseRank.visible = true;
-				self.parent.displayListContainer.addChild(self.btnCloseRank.displayObject);
+				if(showCloseRankBnt){
+					self.btnCloseRank.visible = true;
+					self.parent.displayListContainer.addChild(self.btnCloseRank.displayObject);
+				}
 
 				//主域向子域发送数据
 				self.isShowRank = true;
@@ -141,9 +181,23 @@ module guess {
 					command: "open",
 					myAvatarUrl:Main.myAvatarUrl,
 					rankType:type
-				});				
+				});	
+
+				if(type == "list")
+					utils.Singleton.get(utils.SoundMgr).playSound("pop_mp3"); // 弹窗声音			
 			}
-			else {
+		}
+
+		/**
+		 * 隐藏排行榜
+		 */
+		public hideRankWnd(){
+			let self = this;
+			if(!platform.isRunInWX())
+				return;
+			if(self.isShowRank) {
+				if(self.rankBitmap)
+					egret.Tween.removeTweens(self.rankBitmap)
 				self.rankBitmap.parent && self.rankBitmap.parent.removeChild(self.rankBitmap);
 				self.rankingListMask.parent && self.rankingListMask.parent.removeChild(self.rankingListMask);
 				self.isShowRank = false;
@@ -161,7 +215,7 @@ module guess {
 		public showStageWindow(){
 			let self = this;
 			if(!self.stageWnd)
-				self.stageWnd = new StageWindow("guess");
+				self.stageWnd = new StageWindow("guess", "StageWindow", true);
 			self.stageWnd.show();
 			self.stageWnd.initData(true);
 		}
@@ -181,6 +235,8 @@ module guess {
 			let self = this;
 			if(!self.testWnd)
 				self.testWnd = new TestWindow("guess");
+			if(self.testWnd.isShowing)
+				self.testWnd.hide();
 			self.testWnd.show();
 			self.testWnd.initData();
 		}
@@ -188,7 +244,9 @@ module guess {
 		public showRedBagWindow(money?:number, title?:string){
 			let self = this;
 			if(!self.redbag)
-				self.redbag = new RedBagWindow("guess");
+				self.redbag = new RedBagWindow("guess", "RedBagWindow", true);
+			if(self.redbag.isShowing)
+				self.redbag.hide();
 			self.redbag.show();		
 			self.redbag.initData(money || utils.Singleton.get(GameMgr).data.money, title || "您当前共有红包");
 		}
@@ -196,9 +254,21 @@ module guess {
 		public showDrawWindow(){
 			let self = this;
 			if(!self.drawWnd)
-				self.drawWnd = new DrawWindow("guess");
+				self.drawWnd = new DrawWindow("guess", "DrawWindow", true);
+			if(self.drawWnd.isShowing)
+				self.drawWnd.hide();
 			self.drawWnd.show();
 			self.drawWnd.initData({});
+		}
+
+		public showResultWindow(data:any){
+			let self = this;
+			if(!self.resultWnd)
+				self.resultWnd = new ResultWindow("guess");
+			if(self.resultWnd.isShowing)
+				self.resultWnd.hide();
+			self.resultWnd.show();
+			self.resultWnd.initData(data);
 		}
 	}
 }

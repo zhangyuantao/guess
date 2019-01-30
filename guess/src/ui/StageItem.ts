@@ -21,7 +21,8 @@ module guess {
 
 			let testInfo = GameCfg.getTestInfo(self.level);
 			self.lockCtrl.setSelectedIndex((lock || !testInfo) ? 1 : 0);
-			self.hasRedbagCtrl.setSelectedIndex((testInfo && testInfo.money >= 0) ? 1 : 0);
+			//self.hasRedbagCtrl.setSelectedIndex((testInfo && testInfo.money >= 0) ? 1 : 0); // 红包先隐藏
+			self.hasRedbagCtrl.setSelectedIndex(0);
 		}
 	}
 }

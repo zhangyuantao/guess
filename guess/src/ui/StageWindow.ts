@@ -60,6 +60,12 @@ module guess {
 			self.hide();
 		}
 
+		public hide(){
+			super.hide();
+			if(MainWindow.instance.testWnd && MainWindow.instance.testWnd.isShowing)
+				MainWindow.instance.showRankWnd("vertical", 0, false, false);
+		}
+
 		public prePage(){
 			let self = this;
 			self.btnNext.enabled = true;
@@ -138,7 +144,7 @@ module guess {
 
 		private onBtnClose(e){
 			let self = this;
-			self.hide();
+			self.hide();			
 		}
 
 		private onBtnPre(e){
