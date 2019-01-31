@@ -1,7 +1,7 @@
 module guess {	
 	// 游戏配置结构	 
 	export interface IGameCfg{
-		OfficialWeChat:string;				// 官方微信
+		OfficialWeChat:string;				// 官方微信		
 		TestRewardGold:number;				// 答题奖励金币
 		InviteExtraGold:number;				// 邀请额外奖励金币
 		UnlockAnswerCost:number;			// 解锁答案花费金币

@@ -112,6 +112,9 @@ module guess {
 		private onBtnShare(e){
 			let self = this;
 			self.share("你知道元宵猜灯谜的由来吗？让我告诉你！", 1);
+
+			// 分享奖励金币
+			utils.Singleton.get(GameMgr).modifyGold(GameCfg.getCfg().ShareRewardGold);
 		}
 
 		private onCloseRank(e){

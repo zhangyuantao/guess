@@ -75,6 +75,9 @@ module guess {
 		private onBtnInv(e){
 			let self = this;
 			MainWindow.instance.share("你的好友邀请你猜灯谜~", 1);
+
+			// 邀请奖励金币
+			utils.Singleton.get(GameMgr).modifyGold(GameCfg.getCfg().InviteExtraGold);
 		}
 	}
 }

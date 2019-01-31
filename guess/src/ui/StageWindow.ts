@@ -80,12 +80,12 @@ module guess {
 			self.initData()
 		}
 
-		public initData(reset?:boolean){			
+		public initData(reset:boolean = false){			
 			let self = this;
-			if(reset) self.pageIdx = 0;
 			let maxLv = utils.Singleton.get(GameMgr).getMaxOpenLevel();
-			let pageIdx = self.pageIdx || Math.floor(maxLv / 20);
-			let level = pageIdx * 20 + 1;
+			if(reset)
+				self.pageIdx = Math.floor(maxLv / 21);	
+			let level = self.pageIdx * 20 + 1;
 			for(let i = 0, len = self.lstLevel.numItems; i < len; i++){
 				let item = self.lstLevel.getChildAt(i) as StageItem
 				item.initInfo(level, level > maxLv);
@@ -98,6 +98,8 @@ module guess {
 
 		private setPageBtnState(){
 			let self = this;
+			self.btnPre.enabled = true;
+			self.btnNext.enabled = true;
 			if(self.pageIdx <= 0){
 				self.pageIdx = 0;
 				self.btnPre.enabled = false;
@@ -136,10 +138,10 @@ module guess {
 
 			// 小段位星数 10关一个小等级
 			let star = Math.floor((level - stage * 40) / 10);
-			//return { star: star, desc: stageName};
 			
-			let desc = `${stageName}${star}星`;
-			return desc;
+			for(let i = 0; i < star; i++)
+				stageName += "*";
+			return stageName;
 		}
 
 		private onBtnClose(e){

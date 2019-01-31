@@ -18,13 +18,13 @@ module guess {
 			let self = this;			
 			self.data = <IGameData>{};
 			if(platform.isRunInWX()){	
-				self.data.gold = parseInt(wx.getStorageSync("gold") || 0);
+				self.data.gold = parseInt(wx.getStorageSync("gold") || 60);
 				self.data.reachLevel = parseInt(wx.getStorageSync("reachLevel") || 0);
 				self.data.money = parseInt(wx.getStorageSync("money") || 0);
 				//self.data.toDayWatchAdCount = info["toDayWatchAdCount"] || 0;		
 			}
 			else{
-				self.data.gold = 0;
+				self.data.gold = 60;
 				self.data.reachLevel = 0;
 				self.data.money = 0;
 				//self.data.toDayWatchAdCount = 0;			
@@ -67,7 +67,9 @@ module guess {
 
 		public getMaxOpenLevel(){
 			let self = this;
-			return self.data.reachLevel + 1;
+			let tmp = self.data.reachLevel + 1;
+			tmp = Math.max(Math.min(200, tmp), 0);
+			return tmp;
 		}
 
 		public modifyGold(count:number){
@@ -75,7 +77,7 @@ module guess {
 			count = count || 0;
 			if(count == 0)	return;
 			self.data.gold += count;
-			wx.setStorageSync("gold", self.data.gold);
+			platform.isRunInWX() && wx.setStorageSync("gold", self.data.gold);
 
 			utils.EventDispatcher.getInstance().dispatchEvent("goldChanged");
 		}	
@@ -100,7 +102,7 @@ module guess {
 			count = count || 0;
 			if(count == 0)	return;
 			self.data.money += count;
-			wx.setStorageSync("money", self.data.money);
+			platform.isRunInWX() && wx.setStorageSync("money", self.data.money);
 		}
 
 		// 转盘抽奖

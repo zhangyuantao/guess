@@ -421,7 +421,7 @@ function getLevelFromKVList(data){
       break;
     }
   }
-  return level;
+  return parseInt(level);
 }
 
 /**

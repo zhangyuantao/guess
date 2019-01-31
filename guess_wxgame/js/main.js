@@ -486,13 +486,13 @@ var guess;
             var self = this;
             self.data = {};
             if (platform.isRunInWX()) {
-                self.data.gold = parseInt(wx.getStorageSync("gold") || 0);
+                self.data.gold = parseInt(wx.getStorageSync("gold") || 60);
                 self.data.reachLevel = parseInt(wx.getStorageSync("reachLevel") || 0);
                 self.data.money = parseInt(wx.getStorageSync("money") || 0);
                 //self.data.toDayWatchAdCount = info["toDayWatchAdCount"] || 0;		
             }
             else {
-                self.data.gold = 0;
+                self.data.gold = 60;
                 self.data.reachLevel = 0;
                 self.data.money = 0;
                 //self.data.toDayWatchAdCount = 0;			
@@ -528,7 +528,9 @@ var guess;
         };
         GameMgr.prototype.getMaxOpenLevel = function () {
             var self = this;
-            return self.data.reachLevel + 1;
+            var tmp = self.data.reachLevel + 1;
+            tmp = Math.max(Math.min(200, tmp), 0);
+            return tmp;
         };
         GameMgr.prototype.modifyGold = function (count) {
             var self = this;
@@ -536,7 +538,7 @@ var guess;
             if (count == 0)
                 return;
             self.data.gold += count;
-            wx.setStorageSync("gold", self.data.gold);
+            platform.isRunInWX() && wx.setStorageSync("gold", self.data.gold);
             utils.EventDispatcher.getInstance().dispatchEvent("goldChanged");
         };
         GameMgr.prototype.costGold = function (count) {
@@ -557,7 +559,7 @@ var guess;
             if (count == 0)
                 return;
             self.data.money += count;
-            wx.setStorageSync("money", self.data.money);
+            platform.isRunInWX() && wx.setStorageSync("money", self.data.money);
         };
         // 转盘抽奖
         GameMgr.prototype.draw = function () {
@@ -975,6 +977,8 @@ var guess;
         MainWindow.prototype.onBtnShare = function (e) {
             var self = this;
             self.share("你知道元宵猜灯谜的由来吗？让我告诉你！", 1);
+            // 分享奖励金币
+            utils.Singleton.get(guess.GameMgr).modifyGold(guess.GameCfg.getCfg().ShareRewardGold);
         };
         MainWindow.prototype.onCloseRank = function (e) {
             var self = this;
@@ -1350,6 +1354,8 @@ var guess;
         ResultWindow.prototype.onBtnInv = function (e) {
             var self = this;
             guess.MainWindow.instance.share("你的好友邀请你猜灯谜~", 1);
+            // 邀请奖励金币
+            utils.Singleton.get(guess.GameMgr).modifyGold(guess.GameCfg.getCfg().InviteExtraGold);
         };
         return ResultWindow;
     }(guess.BaseWindow));
@@ -1459,12 +1465,12 @@ var guess;
             self.initData();
         };
         StageWindow.prototype.initData = function (reset) {
+            if (reset === void 0) { reset = false; }
             var self = this;
-            if (reset)
-                self.pageIdx = 0;
             var maxLv = utils.Singleton.get(guess.GameMgr).getMaxOpenLevel();
-            var pageIdx = self.pageIdx || Math.floor(maxLv / 20);
-            var level = pageIdx * 20 + 1;
+            if (reset)
+                self.pageIdx = Math.floor(maxLv / 21);
+            var level = self.pageIdx * 20 + 1;
             for (var i = 0, len = self.lstLevel.numItems; i < len; i++) {
                 var item = self.lstLevel.getChildAt(i);
                 item.initInfo(level, level > maxLv);
@@ -1475,6 +1481,8 @@ var guess;
         };
         StageWindow.prototype.setPageBtnState = function () {
             var self = this;
+            self.btnPre.enabled = true;
+            self.btnNext.enabled = true;
             if (self.pageIdx <= 0) {
                 self.pageIdx = 0;
                 self.btnPre.enabled = false;
@@ -1509,9 +1517,9 @@ var guess;
             }
             // 小段位星数 10关一个小等级
             var star = Math.floor((level - stage * 40) / 10);
-            //return { star: star, desc: stageName};
-            var desc = "" + stageName + star + "\u661F";
-            return desc;
+            for (var i = 0; i < star; i++)
+                stageName += "*";
+            return stageName;
         };
         StageWindow.prototype.onBtnClose = function (e) {
             var self = this;
@@ -1665,8 +1673,8 @@ var guess;
                     //gameMgr.modifyMoney(gameMgr.testMgr.curTest.money);
                     // 存储达到的最高关卡
                     gameMgr.data.reachLevel = curLv;
-                    wx.setStorageSync("reachLevel", curLv);
                     if (platform.isRunInWX()) {
+                        wx.setStorageSync("reachLevel", curLv);
                         wx.setUserCloudStorage({ KVDataList: [{ key: 'level', value: "" + curLv }], success: function (res) {
                                 console.log("分数设置成功:", res);
                             }, "fail": null, "complete": null });
@@ -1692,7 +1700,7 @@ var guess;
                     .call(function () {
                     self.wrongTip.visible = false;
                 });
-                //utils.Singleton.get(utils.SoundMgr).playSound("wrong_mp3"); // 答错声音
+                utils.Singleton.get(utils.SoundMgr).playSound("wrong_mp3"); // 答错声音
             }
         };
         TestWindow.prototype.onShown = function () {

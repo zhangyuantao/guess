@@ -163,9 +163,10 @@ module guess {
 
 					// 存储达到的最高关卡
 					gameMgr.data.reachLevel = curLv;
-					wx.setStorageSync("reachLevel", curLv);
 
 					if(platform.isRunInWX()){
+						wx.setStorageSync("reachLevel", curLv);
+						
 						wx.setUserCloudStorage({KVDataList:[{key:'level', value:`${curLv}`}], success:function(res){ 
 							console.log("分数设置成功:", res);
 						},"fail":null, "complete":null});
@@ -196,7 +197,7 @@ module guess {
 					self.wrongTip.visible = false;
 				});
 
-				//utils.Singleton.get(utils.SoundMgr).playSound("wrong_mp3"); // 答错声音
+				utils.Singleton.get(utils.SoundMgr).playSound("wrong_mp3"); // 答错声音
 			}
 		}
 
