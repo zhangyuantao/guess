@@ -1,5 +1,6 @@
 module guess {
 	export class WordItem extends fairygui.GComponent{
+		public opIdx:number = -1; // 记录候选索引
 		private txtChar:fairygui.GTextField;
 		private colorMask:fairygui.GGraph;
 
@@ -18,6 +19,7 @@ module guess {
 			let self = this;
 			self.txtChar.text = world;
 			self.show();
+			self.removeColorAni();
 		}
 
 		public hide(){

@@ -102,16 +102,17 @@ module guess {
 			if(word.isEmpty())
 				return;
 			let tmp = word.word;
-			word.setChar("");
 
 			for(let i = 0; i < self.lstOption.numItems; i ++){
 				let item = self.lstOption.getChildAt(i) as WordItem;
-				if(item.word === tmp){
+				if(word.opIdx === i && item.word === tmp){
 					item.setChar(tmp);
 					break; 
 				}
 			}
 
+			word.setChar("");
+			word.opIdx = -1;
 			self.isFillAnswer = false;
 		}
 
@@ -124,10 +125,13 @@ module guess {
 				return;
 			word.hide();
 
+			let idx = self.lstOption.getChildIndex(word);
+
 			for(let i = 0; i < self.lstSelect.numItems; i ++){
 				let item = self.lstSelect.getChildAt(i) as WordItem;
 				if(item.isEmpty()){
-					item.setChar(word.word);					
+					item.setChar(word.word);
+					item.opIdx = idx;					
 					break; 
 				}
 			}
@@ -248,9 +252,18 @@ module guess {
 			self.isFillAnswer = false;
 
 			let ops = test.option.split("、");
-			for(let i = 0, len = ops.length; i < len; i++){
+
+			// 每次随机乱序
+			let randomOps = [];
+			while(ops.length){
+				let idx = Math.floor(Math.random() * ops.length);
+				randomOps.push(ops[idx]);
+				ops.splice(idx, 1);
+			}
+
+			for(let i = 0, len = randomOps.length; i < len; i++){
 				let item = self.lstOption.addItemFromPool(fairygui.UIPackage.getItemURL("guess", "WordItem")) as WordItem;
-				item.setChar(ops[i])
+				item.setChar(randomOps[i])
 			}			
 
 			for(let i = 0; i < test.answer.length; i++){

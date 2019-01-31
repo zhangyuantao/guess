@@ -280,7 +280,7 @@ declare const wx: {
     /**
      * 主动拉起转发，进入选择通讯录界面。
      */
-    shareAppMessage(object: { title: string, imageUrl: string, imageUrlId:number, query: string}): void;
+    shareAppMessage(object: { title: string, imageUrl: string, imageUrlId:string, query: string}): void;
     updateShareMenu(object: { withShareTicket: boolean, success: (res: any) => void, fail: (res: any) => void, complete: (res: any) => void }): void;
     setEnableDebug(object: { enableDebug: boolean, success: (res: any) => void, fail: (res: any) => void, complete: (res: any) => void }): void;
     /**

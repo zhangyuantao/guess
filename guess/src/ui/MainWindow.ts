@@ -128,16 +128,27 @@ module guess {
 		 * 分享
 		 */
 		public share(title:string, shareImgId:number){
+			let self = this;
 			if(!platform.isRunInWX())
 				return;
+			
+			let urlId = self.getShareImgUrlId(shareImgId);;
 
 			// 分享
 			wx.shareAppMessage({
 				"title":title,
 				"imageUrl":`resource/assets/share${shareImgId}.png`,
-				"imageUrlId":shareImgId,
+				"imageUrlId":urlId,
 				"query":"",					
 			});
+		}
+
+		/**
+		 * 获取分享图编号
+		 */
+		public getShareImgUrlId(shareImgId:number){
+			let urlId = shareImgId == 1 ? "k972XN06TNGPgKaQaMw4WQ" : "sLuHd8JpTQCDOtEHCBUpog";
+			return urlId;
 		}
 
 		/**

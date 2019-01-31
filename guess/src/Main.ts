@@ -136,7 +136,7 @@ class Main extends egret.DisplayObjectContainer {
                 return {
                     title:"大家元宵都在猜灯谜！你还在打王者？",
 					imageUrl:"resource/assets/share1.png",
-					imageUrlId:0,
+					imageUrlId:"k972XN06TNGPgKaQaMw4WQ",
 					query:"",		
                 }
             });

@@ -134,7 +134,9 @@ var guess;
     var WordItem = (function (_super) {
         __extends(WordItem, _super);
         function WordItem() {
-            return _super !== null && _super.apply(this, arguments) || this;
+            var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.opIdx = -1; // 记录候选索引
+            return _this;
         }
         WordItem.prototype.constructFromResource = function () {
             _super.prototype.constructFromResource.call(this);
@@ -153,6 +155,7 @@ var guess;
             var self = this;
             self.txtChar.text = world;
             self.show();
+            self.removeColorAni();
         };
         WordItem.prototype.hide = function () {
             var self = this;
@@ -406,7 +409,7 @@ var Main = (function (_super) {
                 return {
                     title: "大家元宵都在猜灯谜！你还在打王者？",
                     imageUrl: "resource/assets/share1.png",
-                    imageUrlId: 0,
+                    imageUrlId: "k972XN06TNGPgKaQaMw4WQ",
                     query: "",
                 };
             });
@@ -872,12 +875,7 @@ var guess;
                 utils.EventDispatcher.getInstance().dispatchEvent("shareOk");
                 if (platform.isRunInWX()) {
                     // 分享
-                    wx.shareAppMessage({
-                        "title": "这个经典灯谜难住了朋友圈，据说只有1%的人答对！",
-                        "imageUrl": "resource/assets/share2.png",
-                        "imageUrlId": 0,
-                        "query": "",
-                    });
+                    guess.MainWindow.instance.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
                 }
             }
         };
@@ -990,15 +988,25 @@ var guess;
          * 分享
          */
         MainWindow.prototype.share = function (title, shareImgId) {
+            var self = this;
             if (!platform.isRunInWX())
                 return;
+            var urlId = self.getShareImgUrlId(shareImgId);
+            ;
             // 分享
             wx.shareAppMessage({
                 "title": title,
                 "imageUrl": "resource/assets/share" + shareImgId + ".png",
-                "imageUrlId": shareImgId,
+                "imageUrlId": urlId,
                 "query": "",
             });
+        };
+        /**
+         * 获取分享图编号
+         */
+        MainWindow.prototype.getShareImgUrlId = function (shareImgId) {
+            var urlId = shareImgId == 1 ? "k972XN06TNGPgKaQaMw4WQ" : "sLuHd8JpTQCDOtEHCBUpog";
+            return urlId;
         };
         /**
          * 显示排行榜
@@ -1620,14 +1628,15 @@ var guess;
             if (word.isEmpty())
                 return;
             var tmp = word.word;
-            word.setChar("");
             for (var i = 0; i < self.lstOption.numItems; i++) {
                 var item = self.lstOption.getChildAt(i);
-                if (item.word === tmp) {
+                if (word.opIdx === i && item.word === tmp) {
                     item.setChar(tmp);
                     break;
                 }
             }
+            word.setChar("");
+            word.opIdx = -1;
             self.isFillAnswer = false;
         };
         TestWindow.prototype.onOptionLstClick = function (e) {
@@ -1638,10 +1647,12 @@ var guess;
             if (word.isEmpty())
                 return;
             word.hide();
+            var idx = self.lstOption.getChildIndex(word);
             for (var i = 0; i < self.lstSelect.numItems; i++) {
                 var item = self.lstSelect.getChildAt(i);
                 if (item.isEmpty()) {
                     item.setChar(word.word);
+                    item.opIdx = idx;
                     break;
                 }
             }
@@ -1737,9 +1748,16 @@ var guess;
                 return;
             self.isFillAnswer = false;
             var ops = test.option.split("、");
-            for (var i = 0, len = ops.length; i < len; i++) {
+            // 每次随机乱序
+            var randomOps = [];
+            while (ops.length) {
+                var idx = Math.floor(Math.random() * ops.length);
+                randomOps.push(ops[idx]);
+                ops.splice(idx, 1);
+            }
+            for (var i = 0, len = randomOps.length; i < len; i++) {
                 var item = self.lstOption.addItemFromPool(fairygui.UIPackage.getItemURL("guess", "WordItem"));
-                item.setChar(ops[i]);
+                item.setChar(randomOps[i]);
             }
             for (var i = 0; i < test.answer.length; i++) {
                 var item = self.lstSelect.addItemFromPool(fairygui.UIPackage.getItemURL("guess", "WordItemSmall"));
