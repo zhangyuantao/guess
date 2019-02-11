@@ -49,14 +49,16 @@ class Main extends egret.DisplayObjectContainer {
         // 在getUserInfo执行会导致黑屏
         this.createGameScene(); 
 
-        const userInfo = await platform.getUserInfo();
-        console.log("userInfo:", userInfo);
-        Main.myAvatarUrl = userInfo.avatarUrl;
+        if(Main.isScopeUserInfo){
+            const userInfo = await platform.getUserInfo();
+            // console.log("userInfo:", userInfo);
+            Main.myAvatarUrl = userInfo.avatarUrl;
+            utils.Singleton.get(guess.GameMgr).initData();            
+        }
+       
 
         //const userData = await this.getUserData(userInfo.avatarUrl);
         //console.log("userData:", userData);
-
-        utils.Singleton.get(guess.GameMgr).initData();
     }
 
     private async getUserData(uid:string){
@@ -110,8 +112,8 @@ class Main extends egret.DisplayObjectContainer {
                 });
 
             Main.userInfoBtn.onTap((res) => {
-                if(res.errMsg == "getUserInfo:ok"){
-                    console.log(res);              
+                if(res.errMsg == "getUserInfo:ok"){  
+                    utils.Singleton.get(guess.GameMgr).initData();            
                     Main.myAvatarUrl = res.userInfo.avatarUrl;
                     Main.isScopeUserInfo = true;
                     Main.userInfoBtn.hide();   

@@ -308,15 +308,15 @@ var Main = (function (_super) {
                         Main.isScopeUserInfo = setting["authSetting"]["scope.userInfo"];
                         // 在getUserInfo执行会导致黑屏
                         this.createGameScene();
+                        if (!Main.isScopeUserInfo) return [3 /*break*/, 6];
                         return [4 /*yield*/, platform.getUserInfo()];
                     case 5:
                         userInfo = _b.sent();
-                        console.log("userInfo:", userInfo);
+                        // console.log("userInfo:", userInfo);
                         Main.myAvatarUrl = userInfo.avatarUrl;
-                        //const userData = await this.getUserData(userInfo.avatarUrl);
-                        //console.log("userData:", userData);
                         utils.Singleton.get(guess.GameMgr).initData();
-                        return [2 /*return*/];
+                        _b.label = 6;
+                    case 6: return [2 /*return*/];
                 }
             });
         });
@@ -388,7 +388,7 @@ var Main = (function (_super) {
             });
             Main.userInfoBtn.onTap(function (res) {
                 if (res.errMsg == "getUserInfo:ok") {
-                    console.log(res);
+                    utils.Singleton.get(guess.GameMgr).initData();
                     Main.myAvatarUrl = res.userInfo.avatarUrl;
                     Main.isScopeUserInfo = true;
                     Main.userInfoBtn.hide();
@@ -1023,7 +1023,7 @@ var guess;
             if (!self.isShowRank) {
                 self.lastRankType = self.curRankType;
                 self.curRankType = type;
-                Main.userInfoBtn && Main.userInfoBtn.hide();
+                //Main.userInfoBtn && Main.userInfoBtn.hide();
                 //处理遮罩,避免开放域数据影响主域
                 self.rankingListMask = new egret.Shape();
                 self.rankingListMask.graphics.beginFill(0x000000);
@@ -1070,7 +1070,7 @@ var guess;
                 self.rankingListMask.parent && self.rankingListMask.parent.removeChild(self.rankingListMask);
                 self.isShowRank = false;
                 self.btnCloseRank.visible = false;
-                (self.testWnd && !self.testWnd.isShowing) && Main.userInfoBtn && Main.userInfoBtn.show();
+                //!Main.isScopeUserInfo && (self.testWnd && !self.testWnd.isShowing) && Main.userInfoBtn && Main.userInfoBtn.show();
                 platform.openDataContext.postMessage({
                     isRanking: self.isShowRank,
                     text: "egret",

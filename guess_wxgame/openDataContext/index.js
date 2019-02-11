@@ -95,7 +95,7 @@ function drawRankPanel() {
    wx.getFriendCloudStorage({
       keyList: ["level"],
         success: function (res) {
-            console.log("好友数据",res);
+            //console.log("好友数据",res);
             totalGroup = res.data;
 
             // 排序

@@ -162,7 +162,7 @@ module guess {
 			if(!self.isShowRank) {
 				self.lastRankType = self.curRankType;
 				self.curRankType = type;
-				Main.userInfoBtn && Main.userInfoBtn.hide();
+				//Main.userInfoBtn && Main.userInfoBtn.hide();
 				
 				//处理遮罩,避免开放域数据影响主域
 				self.rankingListMask = new egret.Shape();
@@ -216,7 +216,7 @@ module guess {
 				self.rankingListMask.parent && self.rankingListMask.parent.removeChild(self.rankingListMask);
 				self.isShowRank = false;
 				self.btnCloseRank.visible = false;
-				(self.testWnd && !self.testWnd.isShowing) && Main.userInfoBtn && Main.userInfoBtn.show();
+				//!Main.isScopeUserInfo && (self.testWnd && !self.testWnd.isShowing) && Main.userInfoBtn && Main.userInfoBtn.show();
 				platform.openDataContext.postMessage({
 					isRanking: self.isShowRank,
 					text: "egret",
