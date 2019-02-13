@@ -131,8 +131,9 @@ function drawRankPanel() {
                 // 列表
                 drawRankByGroup(currentGroup);
 
-                // 创建玩家自己排行条目
-                drawByData(myRankInfo, perPageMaxNum, myRank);
+                // 创建玩家自己排行条目         
+                if(myRankInfo)     
+                  drawByData(myRankInfo, perPageMaxNum, myRank);
 
                 //创建按钮
                 drawButton();
@@ -379,11 +380,11 @@ function drawByData(data, i, myRank) {
   context.textAlign = "right";
   context.fillStyle = '#FFBB17';
   context.font = "Bold " + getRightWidth(36) + "px Simhei";  
-  context.fillText(`${level}`, x, startY + i * preOffsetY + textOffsetY, textMaxSize);
+  context.fillText(`${level}`, x, startY + i * preOffsetY + rankOffsetY, textMaxSize);
   context.fillStyle = '#B7B7B7';
   context.font = getRightWidth(24) + "px Simhei";
   x += getRightWidth(35);
-  context.fillText(`题`, x, startY + i * preOffsetY + textOffsetY, textMaxSize);
+  context.fillText(`题`, x, startY + i * preOffsetY + rankOffsetY, textMaxSize);
   context.textAlign = "left";
 }
 
@@ -769,7 +770,7 @@ function getRankInfo(level){
   }
 
   // 小段位星数 10关一个小等级
-  let star = Math.floor((level - stage * 40) / 10);
+  let star = Math.ceil((level - stage * 40) / 10);
   return { star: star, desc: stageName};
 }
 

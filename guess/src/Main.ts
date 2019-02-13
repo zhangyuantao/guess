@@ -105,7 +105,7 @@ class Main extends egret.DisplayObjectContainer {
                     image: 'resource/assets/startBtn.png',
                     style: {
                         left: Main.systemInfo.windowWidth * 0.5 - btnWidth * 0.5,
-                        top:  Main.systemInfo.windowHeight * 0.5,
+                        top:  Main.systemInfo.windowHeight * 0.6,
                         width: btnWidth,
                         height: btnHeight,
                     }

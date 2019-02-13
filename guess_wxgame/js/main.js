@@ -240,20 +240,19 @@ var guess;
 var LoadingUI = (function (_super) {
     __extends(LoadingUI, _super);
     function LoadingUI() {
-        var _this = _super.call(this) || this;
-        _this.createView();
-        return _this;
+        return _super.call(this) || this;
+        //this.createView();
     }
     LoadingUI.prototype.createView = function () {
         this.textField = new egret.TextField();
         this.addChild(this.textField);
-        this.textField.y = 300;
-        this.textField.width = 480;
+        this.textField.y = egret.MainContext.instance.stage.stageHeight * 0.5;
+        this.textField.width = egret.MainContext.instance.stage.stageWidth;
         this.textField.height = 100;
         this.textField.textAlign = "center";
     };
     LoadingUI.prototype.onProgress = function (current, total) {
-        this.textField.text = "Loading..." + current + "/" + total;
+        //this.textField.text = `资源加载中...${current}/${total}`;
     };
     return LoadingUI;
 }(egret.Sprite));
@@ -381,7 +380,7 @@ var Main = (function (_super) {
                 image: 'resource/assets/startBtn.png',
                 style: {
                     left: Main.systemInfo.windowWidth * 0.5 - btnWidth * 0.5,
-                    top: Main.systemInfo.windowHeight * 0.5,
+                    top: Main.systemInfo.windowHeight * 0.6,
                     width: btnWidth,
                     height: btnHeight,
                 }
@@ -1524,7 +1523,7 @@ var guess;
                 stage = 4;
             }
             // 小段位星数 10关一个小等级
-            var star = Math.floor((level - stage * 40) / 10);
+            var star = Math.ceil((level - stage * 40) / 10);
             for (var i = 0; i < star; i++)
                 stageName += "*";
             return stageName;

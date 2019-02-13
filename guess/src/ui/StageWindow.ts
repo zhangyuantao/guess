@@ -137,7 +137,7 @@ module guess {
 			}
 
 			// 小段位星数 10关一个小等级
-			let star = Math.floor((level - stage * 40) / 10);
+			let star = Math.ceil((level - stage * 40) / 10);
 			
 			for(let i = 0; i < star; i++)
 				stageName += "*";
