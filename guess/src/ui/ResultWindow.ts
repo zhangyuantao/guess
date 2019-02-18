@@ -63,6 +63,8 @@ module guess {
 			// 显示排行榜
 			MainWindow.instance.hideRankWnd();
 			MainWindow.instance.showRankWnd("horizontal", 0, false, false);
+
+			utils.Singleton.get(AdMgr).showBannerAd("Banner结算");
 		}
 
 		private onBtnNext(e){

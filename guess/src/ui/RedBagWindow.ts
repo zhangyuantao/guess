@@ -1,5 +1,5 @@
 /**
- * 答题界面
+ * 红包界面
  */
 module guess {
 	export class RedBagWindow extends BaseWindow{		
@@ -75,11 +75,6 @@ module guess {
 		private onBtnClose(e){
 			let self = this;
 			self.hide();
-		}
-
-		private onBtnStage(e){
-			let self = this;
-			MainWindow.instance.showStageWindow();
 		}
 	}
 }

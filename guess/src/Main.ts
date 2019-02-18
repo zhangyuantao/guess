@@ -136,7 +136,7 @@ class Main extends egret.DisplayObjectContainer {
             // 用户点击了“转发”按钮
             wx.onShareAppMessage(() => {
                 return {
-                    title:"大家元宵都在猜灯谜！你还在打王者？",
+                    title:"元宵大家都在猜灯谜！你还在打王者？",
 					imageUrl:"resource/assets/share1.png",
 					imageUrlId:"k972XN06TNGPgKaQaMw4WQ",
 					query:"",		

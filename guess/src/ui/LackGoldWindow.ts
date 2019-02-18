@@ -32,36 +32,27 @@ module guess {
 
 		public initData(){
 			let self = this;
-			if(utils.Singleton.get(AdMgr).adEnable)
-				self.txtTip.text = "观看视频广告可解锁答案";			
-			else
-				self.txtTip.text = "分享到群可解锁答案";
+			self.txtTip.text = "观看视频广告可解锁答案";
+
+			MainWindow.instance.hideRankWnd();
 		}
 
 		private onbtnTask(e){
 			let self = this;
-			if(utils.Singleton.get(AdMgr).adEnable){
-				utils.Singleton.get(AdMgr).watchAd(() => {
-					self.hide();
-					utils.EventDispatcher.getInstance().dispatchEvent("watchAdOk");
-				}, () => {
-
-				});			
-			}
-			else{				
+			utils.Singleton.get(AdMgr).watchVideoAd("Video解锁答案", () => {
 				self.hide();
-				utils.EventDispatcher.getInstance().dispatchEvent("shareOk");
-
-				if(platform.isRunInWX()){
-					// 分享
-					MainWindow.instance.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
-				}	
-			}
+				utils.EventDispatcher.getInstance().dispatchEvent("watchAdOk");
+			}, () => {
+				console.log("广告观看未完成！");
+			});	
 		}
 
 		private onClose(e){
 			let self = this;
 			self.hide();
+
+			if(MainWindow.instance.testWnd && MainWindow.instance.testWnd.isShowing)
+				MainWindow.instance.showRankWnd("vertical", 0, false, false);
 		}
 	}
 }

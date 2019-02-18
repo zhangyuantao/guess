@@ -69,7 +69,6 @@ module guess {
 			let self = this;
 			if(self.playPopSound){
 				utils.Singleton.get(utils.SoundMgr).playSound("pop_mp3"); // 弹窗声音
-				console.log("弹窗声音");
 			}
 			self.onShown();
 		}

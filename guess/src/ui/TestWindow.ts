@@ -234,6 +234,8 @@ module guess {
 
 			MainWindow.instance.hideRankWnd();
 			MainWindow.instance.showRankWnd("vertical", 0, false, false);
+
+			utils.Singleton.get(AdMgr).showBannerAd("Banner答题");
 		}
 		
 		public refreshGold(){
@@ -290,7 +292,7 @@ module guess {
 
 		private onBtnRedBag(e){
 			let self = this;
-			MainWindow.instance.showRedBagWindow();
+			MainWindow.instance.showGiftWindow();
 		}
 
 		private onBtnUnlock(e){

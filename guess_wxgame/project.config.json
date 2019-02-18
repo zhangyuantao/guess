@@ -10,7 +10,7 @@
 		"uglifyFileName": false
 	},
 	"compileType": "game",
-	"libVersion": "2.5.2",
+	"libVersion": "2.6.0",
 	"appid": "wx15da29fe1989e579",
 	"projectname": "guessWX",
 	"condition": {

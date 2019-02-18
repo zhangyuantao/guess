@@ -7,6 +7,7 @@ module guess {
 		public testWnd:TestWindow;
 		public stageWnd:StageWindow;
 		public redbag:RedBagWindow;
+		public giftWnd:GiftWindow;
 		public drawWnd:DrawWindow;
 		public resultWnd:ResultWindow;
 		private scopeCtrl:fairygui.Controller;
@@ -15,6 +16,7 @@ module guess {
 		private btnDraw:fairygui.GButton;
 		private btnRank:fairygui.GButton;
 		private btnShare:fairygui.GButton;
+		private btnTuijian:TuijianButton;
 		private btnCloseRank:fairygui.GButton;		
 
 		private isShowRank:boolean = false;
@@ -53,7 +55,8 @@ module guess {
 		 * 注册组件的拓展类
 		 */
 		protected registerComponents(){
-			let self = this;	
+			let self = this;
+			self.registerComponent("ButtonTuijian", TuijianButton, "guess");
 		}
 
 		/**
@@ -79,8 +82,12 @@ module guess {
 			self.btnShare.addClickListener(self.onBtnShare, self);
 			self.btnCloseRank = self.contentPane.getChild("btnCloseRank").asButton;
 			self.btnCloseRank.addClickListener(self.onCloseRank, self);
+			self.btnTuijian = self.contentPane.getChild("btnTuijian") as TuijianButton;
+
+			// bannerAD
+			utils.Singleton.get(AdMgr).showBannerAd("Banner首页");
 		}	
-		
+
 		private onBtnStart(e){
 			let self = this;
 			self.scopeCtrl.setSelectedIndex(1);
@@ -118,6 +125,15 @@ module guess {
 		}
 
 		private onCloseRank(e){
+			let self = this;			
+			self.hideRankWnd();
+			if(self.lastRankType == "vertical" && self.testWnd.isShowing)
+				self.showRankWnd("vertical", 0, false, false);
+			
+			utils.Singleton.get(AdMgr).showBannerAd("Banner排行榜");
+		}
+
+		private onBtnTuijian(e){
 			let self = this;			
 			self.hideRankWnd();
 			if(self.lastRankType == "vertical" && self.testWnd.isShowing)
@@ -200,6 +216,9 @@ module guess {
 				if(type == "list")
 					utils.Singleton.get(utils.SoundMgr).playSound("pop_mp3"); // 弹窗声音			
 			}
+
+			if(type == "list")
+				utils.Singleton.get(AdMgr).hideBanner();
 		}
 
 		/**
@@ -255,14 +274,25 @@ module guess {
 			self.testWnd.initData();
 		}
 
-		public showRedBagWindow(money?:number, title?:string){
+		// public showRedBagWindow(money?:number, title?:string){
+		// 	let self = this;
+		// 	if(!self.redbag)
+		// 		self.redbag = new RedBagWindow("guess", "RedBagWindow", true);
+		// 	if(self.redbag.isShowing)
+		// 		self.redbag.hide();
+		// 	self.redbag.show();		
+		// 	self.redbag.initData(money || utils.Singleton.get(GameMgr).data.money, title || "您当前共有红包");
+		// }
+
+		public showGiftWindow(){
 			let self = this;
-			if(!self.redbag)
-				self.redbag = new RedBagWindow("guess", "RedBagWindow", true);
-			if(self.redbag.isShowing)
-				self.redbag.hide();
-			self.redbag.show();		
-			self.redbag.initData(money || utils.Singleton.get(GameMgr).data.money, title || "您当前共有红包");
+			if(!self.giftWnd)
+				self.giftWnd = new GiftWindow("guess", "GiftWindow", true);
+			if(self.giftWnd.isShowing)
+				self.giftWnd.hide();
+			self.giftWnd.show();
+
+			self.hideRankWnd();
 		}
 
 		public showDrawWindow(){

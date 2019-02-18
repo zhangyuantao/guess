@@ -47,15 +47,27 @@ module guess {
 			if(self.isDraw)
 				return;
 
-			// TODO console.log("观看广告抽奖~");
+			if(platform.isRunInWX()){
+				utils.Singleton.get(AdMgr).watchVideoAd("Video解锁答案", () => {
+					self.draw();
+				}, () => {
+					console.log("广告观看未完成！");
+				});	
+			}
+			else
+				self.draw();
+		}
 
-			// 模拟观看成功
+		private draw(){
+			let self = this;
+
 			let item = utils.Singleton.get(GameMgr).draw();
-			console.log(`恭喜，抽到：${item.gifts.money ? '红包' : '金币'} x${item.gifts.money || item.gifts.gold}`);
+			console.log(`恭喜，抽到：`,item.gifts);
 
 			// 获得奖励
-			utils.Singleton.get(GameMgr).modifyGold(item.gifts.gold);
-			utils.Singleton.get(GameMgr).modifyMoney(item.gifts.money);
+			if(item.gifts.gold)
+				utils.Singleton.get(GameMgr).modifyGold(item.gifts.gold);
+			//utils.Singleton.get(GameMgr).modifyMoney(item.gifts.money);
 
 			let itemCount = GameCfg.getCfg().LotteryCfg.length;
 			let pieceAngle = 360 / itemCount;
@@ -81,7 +93,8 @@ module guess {
 
 		public initData(data:any){
 			let self = this;
-			self.wheel.rotation = 0;			
+			self.wheel.rotation = 0;
+			utils.Singleton.get(AdMgr).showBannerAd("Banner转盘");			
 		}
 
 		private onBtnClose(e){

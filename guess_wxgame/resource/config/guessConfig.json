@@ -10,18 +10,17 @@
     "ShowBannerLevel":10,
     "LevelsOfStage":40,
     "LevelsOfSubstage":10,
-    "StageNames":["小学生","中学生","优等生","学霸","超级学霸"],
     "DayDrawLotteryMax":1,
     "DrawGetMoneyMax":4,
     "FirstShareGroupGold":100,
     "LotteryCfg":[ 
-        {"idx":0, "gifts":{"money":0.02}, "weight": 10},
-        {"idx":1, "gifts":{"gold":1},     "weight": 1000000},
-        {"idx":2, "gifts":{"gold":50},    "weight": 10},
-        {"idx":3, "gifts":{"money":10},   "weight": 0},
-        {"idx":4, "gifts":{"gold":20},    "weight": 10000},
-        {"idx":5, "gifts":{"money":0.01}, "weight": 100},
-        {"idx":6, "gifts":{"gold":10},    "weight": 100000},
-        {"idx":7, "gifts":{"money":1},    "weight": 1}
+        {"idx":0, "gifts":{"iphoneXs":1}, "weight": 0},
+        {"idx":1, "gifts":{"gold":1},     "weight": 1000},
+        {"idx":2, "gifts":{"youkuVIP":1}, "weight": 0},
+        {"idx":3, "gifts":{"ipad":1},     "weight": 0},
+        {"idx":4, "gifts":{"gold":20},    "weight": 50},
+        {"idx":5, "gifts":{"tenxunVIP":1},"weight": 0},
+        {"idx":6, "gifts":{"gold":10},    "weight": 100},
+        {"idx":7, "gifts":{"money":1},    "weight": 0}
     ]
 }

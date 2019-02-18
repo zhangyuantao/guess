@@ -12,7 +12,6 @@ module guess {
 		ShowBannerLevel:number;				// 底部广告解锁关卡
 		LevelsOfStage:number;				// 每一段位需要多少关卡
 		LevelsOfSubstage:number;			// 每一小段位需要多少关卡
-		StageNames:string[];				// 段位名
 		DayDrawLotteryMax:number;			// 每日抽奖次数上限
 		FirstShareGroupGold:number;			// 首次分享到群获得金币
 		LotteryCfg:ILotteryItemInfo[];		// 转盘抽奖配置

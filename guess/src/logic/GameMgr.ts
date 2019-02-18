@@ -98,11 +98,11 @@ module guess {
 		}
 
 		public modifyMoney(count:number){
-			let self = this;
-			count = count || 0;
-			if(count == 0)	return;
-			self.data.money += count;
-			platform.isRunInWX() && wx.setStorageSync("money", self.data.money);
+			// let self = this;
+			// count = count || 0;
+			// if(count == 0)	return;
+			// self.data.money += count;
+			// platform.isRunInWX() && wx.setStorageSync("money", self.data.money);
 		}
 
 		// 转盘抽奖

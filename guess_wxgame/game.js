@@ -1,3 +1,5 @@
+require('./utils/wlad_sdk_game.min');
+//require('./utils/AdvOTImage.js');
 require('./weapp-adapter.js');
 require('./platform.js');
 require('./manifest.js');
@@ -39,5 +41,15 @@ egret.runEgret({
         return (window.devicePixelRatio || 1) / backingStore;
     }
 });
-
+//初始化流量共享组件显示
+// AdvOTImage.start(function (isShowIcon) {
+//   //这里控制组件挂接的精灵对象的显示控制，isShowIcon true 显示；false 隐藏
+//   if (isShowIcon) {
+//     //显示
+//     console.log("显示");
+//   } else {
+//     //隐藏
+//     console.log("隐藏");
+//   }
+// });
 // require("egret.min.js")

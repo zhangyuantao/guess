@@ -12,19 +12,9 @@ declare interface Platform {
     getSetting():Promise<any>;
     getSystemInfo():Promise<any>;
     getUserCloudStorage(keyArr:string[]):Promise<any>;
-    // //被动转发
-    // showShareMenu(): Promise<any>;
-    // // 被动转发回调监听
-    // onShareAppMessage(cb);
-    // //主动分享的按钮事件
-    // shareAppMessage(any):Promise<any>;
-    // //微信好友圈
-    // createGameClubButton():Promise<any>;
-    // //微信广告
-    // createBannerAd():Promise<any>;
-    // //小程序二维码
-    // post():Promise<any>;
-
+    wladGetAds(num, cb);    
+    createBannerAd(info:any); 
+    createVideoAd(adUnitId);
 }
 
 class DebugPlatform implements Platform {
@@ -56,27 +46,40 @@ class DebugPlatform implements Platform {
         return null;
     }
     
-    // //被动分享
-    // async showShareMenu() {
+    //广告
+    async createBannerAd(info:any) {
+       return null;
+    }
 
-    // }
+    // 视频广告
+    createVideoAd(adUnitId) {
+        return null;
+    }
 
-    // //打开主动分享
-    // async shareAppMessage(any) {
-        
-    // }
-    // //游戏圈
-    // async createGameClubButton() {
-
-    // } 
-    // //广告
-    // async createBannerAd() {
-
-    // }
-    // //小程序码
-    // async post() {
-        
-    // }
+    // 微量平台广告接口
+    wladGetAds(num, cb){
+        let testInfo = {
+            "code": 0,
+            "data": [
+            {
+            "appid": "wx46ce62a969b2c121",
+            "desc": "追忆似水年华，天天答题领红包，可以转发给父母的关爱",
+            "img": "https://wllm.oss-cn-beijing.aliyuncs.com/trackposter/wx46ce62a969b2c121/1127155c9372026a8098_1.jpg",
+            "logo": "https://wllm.oss-cn-beijing.aliyuncs.com/logoa/wx46ce62a969b2c121.png",
+            "name": "答题天天乐"
+            },
+            {
+            "appid": "wx7e5637f105ddc564",
+            "desc": "没有来日方长，只有时光匆匆。珍惜当下的每一分每一秒",
+            "img": "https://wllm.oss-cn-beijing.aliyuncs.com/trackposter/wx7e5637f105ddc564/d3c358c96baed85e4e7e_1.jpg",
+            "logo": "https://wllm.oss-cn-beijing.aliyuncs.com/logoa/wx7e5637f105ddc564.png",
+            "name": "人生时间管理"
+            }
+            ]
+       };
+       
+       cb(testInfo);
+    }
 }
 
 

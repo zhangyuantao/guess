@@ -751,21 +751,21 @@ function getRankInfo(level){
   let tmp = level / 40;   
 
   // 大段位名
-  let stageName = "小学生";
+  let stageName = "秀才";
   if (tmp > 1){
-    stageName = "中等生";
+    stageName = "举人";
     stage = 1;
   }
   if (tmp > 2){
-    stageName = "优等生";
+    stageName = "进士";
     stage = 2;
   }
   if (tmp > 3){
-    stageName = "学霸";
+    stageName = "状元";
     stage = 3;
   }
   if (tmp > 4){
-    stageName = "超级学霸";
+    stageName = "皇上";
     stage = 4;
   }
 

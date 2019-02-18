@@ -1189,7 +1189,7 @@ declare module fairygui {
         getTextField(): GTextField;
         addStateListener(listener: Function, thisObj: any): void;
         removeStateListener(listener: Function, thisObj: any): void;
-        fireClick(downEffect?: boolean): void;
+        onClick(downEffect?: boolean): void;
         protected setState(val: string): void;
         handleControllerChanged(c: Controller): void;
         protected handleGrayedChanged(): void;

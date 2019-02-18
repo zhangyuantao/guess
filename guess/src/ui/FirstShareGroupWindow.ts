@@ -33,6 +33,8 @@ module guess {
 		public initData(){
 			let self = this;
 			self.txtGold.text = `+${GameCfg.getCfg().FirstShareGroupGold}金币`;	
+
+			MainWindow.instance.hideRankWnd();
 		}
 
 		private onbtnShare(e){
@@ -48,6 +50,9 @@ module guess {
 		private onClose(e){
 			let self = this;
 			self.hide();
+
+			if(MainWindow.instance.testWnd && MainWindow.instance.testWnd.isShowing)
+				MainWindow.instance.showRankWnd("vertical", 0, false, false);
 		}
 	}
 }

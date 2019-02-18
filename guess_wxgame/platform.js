@@ -70,6 +70,28 @@ class WxgamePlatform {
         })
     }
 
+    // 微量换量平台，获取跳转的小程序
+    wladGetAds(num, cb){
+      wx.wladGetAds(num, (info) => {
+        //console.log(info);
+        cb(info);
+      });
+    }
+
+    // banner
+    createBannerAd(info){
+      let bannerAd = wx.createBannerAd(info);
+      bannerAd.show();
+      return bannerAd;
+    }
+
+  createVideoAd(adUnitId) {
+    let videoAd = wx.createRewardedVideoAd({
+      adUnitId: adUnitId
+    });
+    return videoAd;
+  }
+
     openDataContext = new WxgameOpenDataContext();
 }
 
