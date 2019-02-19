@@ -291,8 +291,7 @@ module guess {
 			if(self.giftWnd.isShowing)
 				self.giftWnd.hide();
 			self.giftWnd.show();
-
-			self.hideRankWnd();
+			self.giftWnd.initData();
 		}
 
 		public showDrawWindow(){

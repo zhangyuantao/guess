@@ -54,6 +54,7 @@ module guess {
 			self.registerComponent("WordItemSmall", WordItemSmall, "guess");
 			self.registerComponent("QuestionPanel", QuestionPanel, "guess");
 			self.registerComponent("QuestionPanelDM", QuestionPanelDM, "guess");
+			self.registerComponent("ButtonTuijianLaya", LayaTuijianButton, "guess");
 		}
 
 		/**
@@ -310,11 +311,11 @@ module guess {
 				self.lackWnd.initData();
 
 				// 监听观看成功
-				utils.EventDispatcher.getInstance().removeEventListener("watchAdOk", self.showAnswerTip, self);
-				utils.EventDispatcher.getInstance().once("watchAdOk", self.showAnswerTip, self);
+				//utils.EventDispatcher.getInstance().removeEventListener("watchAdOk", self.showAnswerTip, self);
+				//utils.EventDispatcher.getInstance().once("watchAdOk", self.showAnswerTip, self);
 				// 监听分享到群成功
-				utils.EventDispatcher.getInstance().removeEventListener("shareOk", self.showAnswerTip, self);
-				utils.EventDispatcher.getInstance().once("shareOk", self.showAnswerTip, self);
+				//utils.EventDispatcher.getInstance().removeEventListener("shareOk", self.showAnswerTip, self);
+				//utils.EventDispatcher.getInstance().once("shareOk", self.showAnswerTip, self);
 				return;
 			}
 
@@ -337,8 +338,15 @@ module guess {
 		// 我要更多提示
 		private onBtnUnlockTip(e){
 			let self = this;
-			MainWindow.instance.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
-			self.questionPanelDM.unlockTip();
+			// 看视频解锁
+			utils.Singleton.get(AdMgr).watchVideoAd("Video解锁提示", (isEnded) => {
+				if(isEnded)
+					self.questionPanelDM.unlockTip();
+			}, () => {
+				// 视频拉取失败则分享
+				MainWindow.instance.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
+				self.questionPanelDM.unlockTip();
+			});
 		}
 
 		private showAnswerTip(){

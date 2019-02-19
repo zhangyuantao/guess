@@ -18,13 +18,13 @@ module guess {
 			let self = this;			
 			self.data = <IGameData>{};
 			if(platform.isRunInWX()){	
-				self.data.gold = parseInt(wx.getStorageSync("gold") || 60);
+				self.data.gold = parseInt(wx.getStorageSync("gold") || 20);
 				self.data.reachLevel = parseInt(wx.getStorageSync("reachLevel") || 0);
 				self.data.money = parseInt(wx.getStorageSync("money") || 0);
 				//self.data.toDayWatchAdCount = info["toDayWatchAdCount"] || 0;		
 			}
 			else{
-				self.data.gold = 60;
+				self.data.gold = 20;
 				self.data.reachLevel = 0;
 				self.data.money = 0;
 				//self.data.toDayWatchAdCount = 0;			

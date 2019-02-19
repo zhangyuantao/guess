@@ -117,7 +117,7 @@ function drawRankPanel() {
             }
 
             // 取前20
-            totalGroup.slice(0, 20);
+            totalGroup = totalGroup.slice(0, 20);
 
             // 预加载头像
             let urls = [];

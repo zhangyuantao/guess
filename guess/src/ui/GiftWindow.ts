@@ -37,5 +37,10 @@ module guess {
 			if(MainWindow.instance.testWnd && MainWindow.instance.testWnd.isShowing)
 				MainWindow.instance.showRankWnd("vertical", 0, false, false);
 		}
+
+		public initData(){
+			MainWindow.instance.hideRankWnd();
+			utils.Singleton.get(AdMgr).showBannerAd("Banner礼物界面");
+		}
 	}
 }

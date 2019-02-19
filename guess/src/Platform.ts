@@ -15,6 +15,9 @@ declare interface Platform {
     wladGetAds(num, cb);    
     createBannerAd(info:any); 
     createVideoAd(adUnitId);
+    layaAdChange(cb:Function);
+    layaAdToMiniProgram();
+    isRuniOS():boolean;
 }
 
 class DebugPlatform implements Platform {
@@ -79,6 +82,18 @@ class DebugPlatform implements Platform {
        };
        
        cb(testInfo);
+    }
+
+    layaAdChange(cb){
+      cb(true, "");
+    }
+
+    layaAdToMiniProgram(){
+     
+    }
+    
+    isRuniOS(){
+        return true;
     }
 }
 

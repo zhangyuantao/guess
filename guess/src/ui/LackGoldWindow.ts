@@ -32,19 +32,22 @@ module guess {
 
 		public initData(){
 			let self = this;
-			self.txtTip.text = "观看视频广告可解锁答案";
+			self.txtTip.text = "金币不足！";//"观看视频广告可解锁答案";
 
 			MainWindow.instance.hideRankWnd();
 		}
 
 		private onbtnTask(e){
 			let self = this;
-			utils.Singleton.get(AdMgr).watchVideoAd("Video解锁答案", () => {
-				self.hide();
-				utils.EventDispatcher.getInstance().dispatchEvent("watchAdOk");
-			}, () => {
-				console.log("广告观看未完成！");
-			});	
+			// utils.Singleton.get(AdMgr).watchVideoAd("Video解锁答案", () => {
+			// 	self.hide();
+			// 	utils.EventDispatcher.getInstance().dispatchEvent("watchAdOk");
+			// }, () => {
+			// 	console.log("广告观看未完成！");
+			// });	
+
+			self.hide();
+			MainWindow.instance.showDrawWindow();
 		}
 
 		private onClose(e){

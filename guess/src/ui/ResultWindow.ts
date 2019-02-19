@@ -6,14 +6,16 @@ module guess {
 		private txtGold:fairygui.GTextField;
 		private txtTip:fairygui.GTextField;
 		private btnNext:fairygui.GButton;
-		private btnInvite:fairygui.GButton;
+		private btnDouble:fairygui.GButton;
+
+		private gainGold:number;
 	
 		// 释放
 		public dispose(): void {		
 			super.dispose();			
 			let self = this;
 			self.btnNext.removeClickListener(self.onBtnNext, self);
-			self.btnInvite.removeClickListener(self.onBtnInv, self);
+			self.btnDouble.removeClickListener(self.onBtnDouble, self);
 		}
 
 		protected initUI(){
@@ -38,8 +40,8 @@ module guess {
 			let self = this;		
 			self.btnNext = self.contentPane.getChild("btnNext").asButton;
 			self.btnNext.addClickListener(self.onBtnNext, self);
-			self.btnInvite = self.contentPane.getChild("btnInvite").asButton;
-			self.btnInvite.addClickListener(self.onBtnInv, self);			
+			self.btnDouble = self.contentPane.getChild("btnDouble").asButton;
+			self.btnDouble.addClickListener(self.onBtnDouble, self);			
 			self.txtGold = self.contentPane.getChild("txtGold").asTextField;
 			self.txtTip = self.contentPane.getChild("txtTip").asTextField;
 		}
@@ -57,6 +59,7 @@ module guess {
 
 		public initData(gainGold:number){
 			let self = this;
+			self.gainGold = gainGold;
 			self.txtGold.text = `+${gainGold}金币`			
 			self.txtTip.text = gainGold <= 0 ? "(已答对的题不再获得)" : "";
 
@@ -65,6 +68,8 @@ module guess {
 			MainWindow.instance.showRankWnd("horizontal", 0, false, false);
 
 			utils.Singleton.get(AdMgr).showBannerAd("Banner结算");
+
+			self.btnDouble.enabled = true;
 		}
 
 		private onBtnNext(e){
@@ -74,12 +79,29 @@ module guess {
 			utils.EventDispatcher.getInstance().dispatchEvent("onNextTest");
 		}
 
-		private onBtnInv(e){
+		private onBtnDouble(e){
 			let self = this;
-			MainWindow.instance.share("你的好友邀请你猜灯谜~", 1);
+			// 获取双倍奖励
+			utils.Singleton.get(AdMgr).watchVideoAd("Video抽奖", (isEnded) => {
+				if(isEnded){
+					utils.Singleton.get(GameMgr).modifyGold(GameCfg.getCfg().TestRewardGold);
+					self.gainDoubleEff();
+					self.btnDouble.enabled = false;
+				}
+			}, () => {
+				// 广告拉取失败改成分享
+				MainWindow.instance.share("你的好友邀请你猜灯谜，都说第17题真难！", 1);
+				utils.Singleton.get(GameMgr).modifyGold(GameCfg.getCfg().TestRewardGold);
+				self.gainDoubleEff();
+				self.btnDouble.enabled = false;
+			});				
+		}
 
-			// 邀请奖励金币
-			utils.Singleton.get(GameMgr).modifyGold(GameCfg.getCfg().InviteExtraGold);
+		private gainDoubleEff(){
+			let self = this;
+			egret.Tween.get(self.txtGold).to({alpha:0}, 500).call(() => {
+				self.txtGold.text = `+${self.gainGold * 2}金币`
+			}).to({alpha:1}, 500);
 		}
 	}
 }

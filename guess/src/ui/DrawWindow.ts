@@ -6,6 +6,9 @@ module guess {
 		private wheel:fairygui.GComponent;
 		private btnDraw:fairygui.GButton;
 		private btnClose:fairygui.GButton;
+		private c1:fairygui.Controller; // 提示观看次数用完
+		private c2:fairygui.Controller; // 提示获得物品
+		private txtBonus:fairygui.GTextField;
 
 		private isDraw:boolean;
 	
@@ -40,6 +43,9 @@ module guess {
 			self.btnClose = self.contentPane.getChild("btnClose").asButton;
 			self.btnClose.addClickListener(self.onBtnClose, self);
 			self.wheel = self.contentPane.getChild("wheel").asCom;
+			self.c1 = self.contentPane.getController("c1");
+			self.c2 = self.contentPane.getController("c2");
+			self.txtBonus = self.contentPane.getChild("txtBonus").asTextField;
 		}
 
 		private onBtnDrawClick(e:fairygui.ItemEvent){
@@ -48,10 +54,17 @@ module guess {
 				return;
 
 			if(platform.isRunInWX()){
-				utils.Singleton.get(AdMgr).watchVideoAd("Video解锁答案", () => {
-					self.draw();
+				utils.Singleton.get(AdMgr).watchVideoAd("Video抽奖", (isEnded) => {
+					if(isEnded)
+						self.draw();
 				}, () => {
-					console.log("广告观看未完成！");
+					self.c2.setSelectedIndex(1);
+					self.txtBonus.text = "广告观失败！";
+
+					let id = setTimeout(function() {
+						clearTimeout(id);
+						self.c2.setSelectedIndex(0);
+					}, 100);
 				});	
 			}
 			else
@@ -60,14 +73,11 @@ module guess {
 
 		private draw(){
 			let self = this;
-
 			let item = utils.Singleton.get(GameMgr).draw();
-			console.log(`恭喜，抽到：`,item.gifts);
 
 			// 获得奖励
 			if(item.gifts.gold)
 				utils.Singleton.get(GameMgr).modifyGold(item.gifts.gold);
-			//utils.Singleton.get(GameMgr).modifyMoney(item.gifts.money);
 
 			let itemCount = GameCfg.getCfg().LotteryCfg.length;
 			let pieceAngle = 360 / itemCount;
@@ -83,18 +93,26 @@ module guess {
 			self.btnDraw.enabled = false;
 			egret.Tween.get(self.wheel).set({rotation:self.wheel.rotation %= 360})			
 			.to({rotation:toAngle - 720}, 4000, egret.Ease.sineIn)
-			.to({rotation:toAngle}, 3000, egret.Ease.sineOut)
+			.to({rotation:toAngle}, 2000, egret.Ease.sineOut)
 			.call(() => {
 				self.isDraw = false;
 				self.btnClose.enabled = true;
 				self.btnDraw.enabled = true;
+
+				self.txtBonus.text = `恭喜抽到：+${item.gifts.gold || 0}金币`;
+				self.c2.setSelectedIndex(1);
+			}).wait(1300).call(() => {
+				self.c2.setSelectedIndex(0);
 			});
 		}
 
 		public initData(data:any){
 			let self = this;
 			self.wheel.rotation = 0;
-			utils.Singleton.get(AdMgr).showBannerAd("Banner转盘");			
+			utils.Singleton.get(AdMgr).showBannerAd("Banner转盘");
+			
+			self.btnDraw.enabled = true;
+			self.c1.setSelectedIndex(0);
 		}
 
 		private onBtnClose(e){

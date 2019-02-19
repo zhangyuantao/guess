@@ -28,11 +28,11 @@ module guess {
 					let tex = res as egret.Texture;
 					self.curAdLogo = new egret.Bitmap(tex);
 					self.curAdLogo.touchEnabled = true;
-					self.curAdLogo.width = 80;
-					self.curAdLogo.height = 80;
-					self.curAdLogo.x = 22;
-					self.curAdLogo.y = 14;
-					self.displayListContainer.addChild(self.curAdLogo);
+					self.curAdLogo.width = 90;
+					self.curAdLogo.height = 90;
+					self.curAdLogo.x = 17;
+					self.curAdLogo.y = 9;
+					self.displayListContainer.addChildAt(self.curAdLogo, 2);
 				}, self);				
 			});
 		}

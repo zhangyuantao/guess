@@ -7,8 +7,10 @@ module guess {
 			"Banner排行榜":'adunit-519a1a4eecd6cbfa',
 			"Banner关卡":'adunit-5f71b2babc6d5531',
 			"Banner转盘":'adunit-aa345621a1364836',
+			"Banner礼物界面":'adunit-0be54d96516555f7',
 			"Video抽奖":'adunit-eb825b11659445af',
-			"Video解锁答案":'adunit-8cf5566718dd3b8a',
+			"Video解锁提示":'adunit-8cf5566718dd3b8a',
+			"Video双倍奖励":'adunit-f015846fe6b66acb',
 		};
 
 		private onWatchVideoOk:Function;
@@ -19,6 +21,11 @@ module guess {
 		private sysInfo:any;
 		private screenWidth:number;
 		private screenHeight:number;
+
+		//private totayWatchVideoCount:number = 0;
+		//private dayWatchVideoMaxCount:number = 5;
+		
+		//public videoEnabled:boolean = true;
 
 		onCreate(){
 			let self = this;
@@ -68,6 +75,10 @@ module guess {
 				self.bannerComp.hide();
 		}
 
+		//public canWatchVideo(){
+		//	return this.videoEnabled;
+		//}
+
 		// 观看视频广告
 		public watchVideoAd(adName:string, watchOk:Function, watchFail:Function){
 			let self = this;	
@@ -85,8 +96,20 @@ module guess {
 
 			self.onWatchVideoOk = watchOk;
 			self.onWatchVideoFail = watchFail;
-			self.videoAdComp.onError(e => console.log(e));
-			self.videoAdComp.onClose((res) => {self.onVideoClosed(res)});
+			self.videoAdComp.onError(res => {self.onVideoError(res)});
+			self.videoAdComp.onClose(res => {self.onVideoClosed(res)});
+		}
+
+		private onVideoError(res){
+			let self = this;
+			self.videoAdComp.offError();
+			console.log("视频观看错误：", res);
+			if(self.onWatchVideoFail)
+				self.onWatchVideoFail();
+
+			//if(self.totayWatchVideoCount >= self.dayWatchVideoMaxCount){
+			//	self.videoEnabled = false;
+			//}
 		}
 
 		private onVideoClosed(res){
@@ -94,16 +117,15 @@ module guess {
 			self.videoAdComp.offClose();
 
 			if(res && res.isEnded || res === undefined){
-				// 观看成功
-				if(self.onWatchVideoOk)
-					self.onWatchVideoOk();
+				// 观看完成
+				self.onWatchVideoOk(true);
+
+				//self.totayWatchVideoCount ++;
 			}
 			else{
-				// 观看失败
-				if(self.onWatchVideoFail)
-					self.onWatchVideoFail();
+				// 观看未完成
+				self.onWatchVideoOk(false);
 			}
-
 		}
 
 		/**

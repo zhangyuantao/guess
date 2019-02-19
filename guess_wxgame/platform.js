@@ -78,6 +78,16 @@ class WxgamePlatform {
       });
     }
 
+    layaAdChange(cb){
+      //初始化流量共享组件显示
+      AdvOTImage.start();
+      AdvOTImage.change(cb);
+    }
+
+    layaAdToMiniProgram(){
+      AdvOTImage.navigateToMiniProgram();
+    }
+
     // banner
     createBannerAd(info){
       let bannerAd = wx.createBannerAd(info);
@@ -90,6 +100,13 @@ class WxgamePlatform {
       adUnitId: adUnitId
     });
     return videoAd;
+  }
+
+  isRuniOS(){
+    let sysInfo = wx.getSystemInfoSync();
+    let isRuniOS = sysInfo.system.indexOf('iOS') != -1;
+    console.log("isRuniOS:", isRuniOS);
+    return isRuniOS;
   }
 
     openDataContext = new WxgameOpenDataContext();
