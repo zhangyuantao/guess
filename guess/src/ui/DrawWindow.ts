@@ -64,7 +64,7 @@ module guess {
 					let id = setTimeout(function() {
 						clearTimeout(id);
 						self.c2.setSelectedIndex(0);
-					}, 100);
+					}, 500);
 				});	
 			}
 			else

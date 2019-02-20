@@ -8,9 +8,11 @@ module guess {
 			"Banner关卡":'adunit-5f71b2babc6d5531',
 			"Banner转盘":'adunit-aa345621a1364836',
 			"Banner礼物界面":'adunit-0be54d96516555f7',
+			"Banner答题次数用完":'adunit-b01bca0c77d3e43b',
 			"Video抽奖":'adunit-eb825b11659445af',
 			"Video解锁提示":'adunit-8cf5566718dd3b8a',
 			"Video双倍奖励":'adunit-f015846fe6b66acb',
+			"Video解锁答题次数":'adunit-31773b2f5e36ae0a',
 		};
 
 		private onWatchVideoOk:Function;

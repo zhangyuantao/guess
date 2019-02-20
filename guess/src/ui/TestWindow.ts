@@ -19,8 +19,11 @@ module guess {
 		private txtGold:fairygui.GTextField;
 		private txtLevel:fairygui.GTextField;
 		private lackWnd:LackGoldWindow;
+		private answerLimitWnd:AnswerLimitWindow;
 		private wrongTip:fairygui.GComponent;
 
+		private answerChanceCount:number = 0; // 答错次数
+		private freeAnswerCount:number = 3; // 免费答题次数
 		private isFillAnswer:boolean = false;
 	
 		// 释放
@@ -124,6 +127,16 @@ module guess {
 			let word = e.itemObject as WordItem;
 			if(word.isEmpty())
 				return;
+
+			// 答题机会用完
+			if(self.answerChanceCount >= self.freeAnswerCount){
+				if(!self.answerLimitWnd)
+					self.answerLimitWnd = new AnswerLimitWindow("guess", "AnswerLimitWindow", true);
+				self.answerLimitWnd.show();
+				self.answerLimitWnd.initData();
+				return;
+			}
+
 			word.hide();
 
 			let idx = self.lstOption.getChildIndex(word);
@@ -137,8 +150,7 @@ module guess {
 				}
 			}
 
-			// 填满后检测答案
-			self.checkAnswer();
+			self.checkAnswer(); // 填满后检测答案		
 		}
 
 		private checkAnswer(){
@@ -193,6 +205,8 @@ module guess {
 				utils.Singleton.get(utils.SoundMgr).playSound("right_mp3"); // 答对声音
 			}
 			else{
+				self.answerChanceCount ++;
+
 				// 错误提示
 				self.wrongTip.visible = true;
 				egret.Tween.get(self.wrongTip).set({alpha:0})
@@ -237,6 +251,8 @@ module guess {
 			MainWindow.instance.showRankWnd("vertical", 0, false, false);
 
 			utils.Singleton.get(AdMgr).showBannerAd("Banner答题");
+
+			self.answerChanceCount = 0;
 		}
 		
 		public refreshGold(){
@@ -377,6 +393,11 @@ module guess {
 		private onShareOk(){
 			// 分享成功加金币
 			utils.Singleton.get(GameMgr).modifyGold(GameCfg.getCfg().FirstShareGroupGold);
+		}
+
+		public resetAnswerChance(){
+			let self = this;
+			self.answerChanceCount = 0;
 		}
 	}
 }

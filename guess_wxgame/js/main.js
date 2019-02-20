@@ -188,60 +188,50 @@ var guess;
 })(guess || (guess = {}));
 var guess;
 (function (guess) {
-    var LackGoldWindow = (function (_super) {
-        __extends(LackGoldWindow, _super);
-        function LackGoldWindow() {
+    var GiftWindow = (function (_super) {
+        __extends(GiftWindow, _super);
+        function GiftWindow() {
             return _super !== null && _super.apply(this, arguments) || this;
         }
         // 释放
-        LackGoldWindow.prototype.dispose = function () {
+        GiftWindow.prototype.dispose = function () {
             _super.prototype.dispose.call(this);
             var self = this;
-            self.btnTask.removeClickListener(self.onbtnTask, self);
-            self.btnClose.removeClickListener(self.onClose, self);
+            self.btnClose.removeClickListener(self.onBtnClose, self);
         };
-        LackGoldWindow.prototype.initUI = function () {
+        GiftWindow.prototype.initUI = function () {
             var self = this;
-            self.contentPane = fairygui.UIPackage.createObject("guess", "LackGoldWindow").asCom;
+            self.contentPane = fairygui.UIPackage.createObject("guess", "GiftWindow").asCom;
+        };
+        /**
+         * 注册组件的拓展类
+         */
+        GiftWindow.prototype.registerComponents = function () {
+            var self = this;
         };
         /**
          * 初始化完成
          */
-        LackGoldWindow.prototype.onInit = function () {
+        GiftWindow.prototype.onInit = function () {
             _super.prototype.onInit.call(this);
             var self = this;
-            self.btnTask = self.contentPane.getChild("btnTask").asButton;
-            self.btnTask.addClickListener(self.onbtnTask, self);
             self.btnClose = self.contentPane.getChild("btnClose").asButton;
-            self.btnClose.addClickListener(self.onClose, self);
-            self.txtTip = self.contentPane.getChild("txtTip").asTextField;
+            self.btnClose.addClickListener(self.onBtnClose, self);
         };
-        LackGoldWindow.prototype.initData = function () {
-            var self = this;
-            self.txtTip.text = "金币不足！"; //"观看视频广告可解锁答案";
-            guess.MainWindow.instance.hideRankWnd();
-        };
-        LackGoldWindow.prototype.onbtnTask = function (e) {
-            var self = this;
-            // utils.Singleton.get(AdMgr).watchVideoAd("Video解锁答案", () => {
-            // 	self.hide();
-            // 	utils.EventDispatcher.getInstance().dispatchEvent("watchAdOk");
-            // }, () => {
-            // 	console.log("广告观看未完成！");
-            // });	
-            self.hide();
-            guess.MainWindow.instance.showDrawWindow();
-        };
-        LackGoldWindow.prototype.onClose = function (e) {
+        GiftWindow.prototype.onBtnClose = function (e) {
             var self = this;
             self.hide();
             if (guess.MainWindow.instance.testWnd && guess.MainWindow.instance.testWnd.isShowing)
                 guess.MainWindow.instance.showRankWnd("vertical", 0, false, false);
         };
-        return LackGoldWindow;
+        GiftWindow.prototype.initData = function () {
+            guess.MainWindow.instance.hideRankWnd();
+            utils.Singleton.get(guess.AdMgr).showBannerAd("Banner礼物界面");
+        };
+        return GiftWindow;
     }(guess.BaseWindow));
-    guess.LackGoldWindow = LackGoldWindow;
-    __reflect(LackGoldWindow.prototype, "guess.LackGoldWindow");
+    guess.GiftWindow = GiftWindow;
+    __reflect(GiftWindow.prototype, "guess.GiftWindow");
 })(guess || (guess = {}));
 var LoadingUI = (function (_super) {
     __extends(LoadingUI, _super);
@@ -690,6 +680,67 @@ var guess;
 })(guess || (guess = {}));
 var guess;
 (function (guess) {
+    var AnswerLimitWindow = (function (_super) {
+        __extends(AnswerLimitWindow, _super);
+        function AnswerLimitWindow() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        // 释放
+        AnswerLimitWindow.prototype.dispose = function () {
+            _super.prototype.dispose.call(this);
+            var self = this;
+            self.btnTask.removeClickListener(self.onbtnTask, self);
+            self.btnClose.removeClickListener(self.onClose, self);
+        };
+        AnswerLimitWindow.prototype.initUI = function () {
+            var self = this;
+            self.contentPane = fairygui.UIPackage.createObject("guess", "AnswerLimitWindow").asCom;
+        };
+        /**
+         * 初始化完成
+         */
+        AnswerLimitWindow.prototype.onInit = function () {
+            _super.prototype.onInit.call(this);
+            var self = this;
+            self.btnTask = self.contentPane.getChild("btnTask").asButton;
+            self.btnTask.addClickListener(self.onbtnTask, self);
+            self.btnClose = self.contentPane.getChild("btnClose").asButton;
+            self.btnClose.addClickListener(self.onClose, self);
+            self.txtTip = self.contentPane.getChild("txtTip").asTextField;
+        };
+        AnswerLimitWindow.prototype.initData = function () {
+            var self = this;
+            self.txtTip.text = "免费答题次数用完！";
+            utils.Singleton.get(guess.AdMgr).showBannerAd("Banner答题次数用完");
+            guess.MainWindow.instance.hideRankWnd();
+        };
+        AnswerLimitWindow.prototype.onbtnTask = function (e) {
+            var self = this;
+            utils.Singleton.get(guess.AdMgr).watchVideoAd("Video解锁答题次数", function (isEnded) {
+                if (isEnded) {
+                    guess.MainWindow.instance.testWnd.resetAnswerChance();
+                    self.hide();
+                }
+            }, function () {
+                // 视频拉取失败则分享
+                guess.MainWindow.instance.share("这个经典灯谜难住了朋友圈，据说只有1%的人答对！", 2);
+                guess.MainWindow.instance.testWnd.resetAnswerChance();
+                self.hide();
+            });
+        };
+        AnswerLimitWindow.prototype.onClose = function (e) {
+            var self = this;
+            self.hide();
+            if (guess.MainWindow.instance.testWnd && guess.MainWindow.instance.testWnd.isShowing)
+                guess.MainWindow.instance.showRankWnd("vertical", 0, false, false);
+        };
+        return AnswerLimitWindow;
+    }(guess.BaseWindow));
+    guess.AnswerLimitWindow = AnswerLimitWindow;
+    __reflect(AnswerLimitWindow.prototype, "guess.AnswerLimitWindow");
+})(guess || (guess = {}));
+var guess;
+(function (guess) {
     var AdMgr = (function () {
         function AdMgr() {
             this.adCfg = {
@@ -700,9 +751,11 @@ var guess;
                 "Banner关卡": 'adunit-5f71b2babc6d5531',
                 "Banner转盘": 'adunit-aa345621a1364836',
                 "Banner礼物界面": 'adunit-0be54d96516555f7',
+                "Banner答题次数用完": 'adunit-b01bca0c77d3e43b',
                 "Video抽奖": 'adunit-eb825b11659445af',
                 "Video解锁提示": 'adunit-8cf5566718dd3b8a',
                 "Video双倍奖励": 'adunit-f015846fe6b66acb',
+                "Video解锁答题次数": 'adunit-31773b2f5e36ae0a',
             };
         }
         //private totayWatchVideoCount:number = 0;
@@ -926,7 +979,7 @@ var guess;
                     var id = setTimeout(function () {
                         clearTimeout(id);
                         self.c2.setSelectedIndex(0);
-                    }, 100);
+                    }, 500);
                 });
             }
             else
@@ -1035,53 +1088,6 @@ var guess;
 })(guess || (guess = {}));
 var guess;
 (function (guess) {
-    var GiftWindow = (function (_super) {
-        __extends(GiftWindow, _super);
-        function GiftWindow() {
-            return _super !== null && _super.apply(this, arguments) || this;
-        }
-        // 释放
-        GiftWindow.prototype.dispose = function () {
-            _super.prototype.dispose.call(this);
-            var self = this;
-            self.btnClose.removeClickListener(self.onBtnClose, self);
-        };
-        GiftWindow.prototype.initUI = function () {
-            var self = this;
-            self.contentPane = fairygui.UIPackage.createObject("guess", "GiftWindow").asCom;
-        };
-        /**
-         * 注册组件的拓展类
-         */
-        GiftWindow.prototype.registerComponents = function () {
-            var self = this;
-        };
-        /**
-         * 初始化完成
-         */
-        GiftWindow.prototype.onInit = function () {
-            _super.prototype.onInit.call(this);
-            var self = this;
-            self.btnClose = self.contentPane.getChild("btnClose").asButton;
-            self.btnClose.addClickListener(self.onBtnClose, self);
-        };
-        GiftWindow.prototype.onBtnClose = function (e) {
-            var self = this;
-            self.hide();
-            if (guess.MainWindow.instance.testWnd && guess.MainWindow.instance.testWnd.isShowing)
-                guess.MainWindow.instance.showRankWnd("vertical", 0, false, false);
-        };
-        GiftWindow.prototype.initData = function () {
-            guess.MainWindow.instance.hideRankWnd();
-            utils.Singleton.get(guess.AdMgr).showBannerAd("Banner礼物界面");
-        };
-        return GiftWindow;
-    }(guess.BaseWindow));
-    guess.GiftWindow = GiftWindow;
-    __reflect(GiftWindow.prototype, "guess.GiftWindow");
-})(guess || (guess = {}));
-var guess;
-(function (guess) {
     var GameCfg = (function () {
         function GameCfg() {
         }
@@ -1104,6 +1110,63 @@ var guess;
     }());
     guess.GameCfg = GameCfg;
     __reflect(GameCfg.prototype, "guess.GameCfg");
+})(guess || (guess = {}));
+var guess;
+(function (guess) {
+    var LackGoldWindow = (function (_super) {
+        __extends(LackGoldWindow, _super);
+        function LackGoldWindow() {
+            return _super !== null && _super.apply(this, arguments) || this;
+        }
+        // 释放
+        LackGoldWindow.prototype.dispose = function () {
+            _super.prototype.dispose.call(this);
+            var self = this;
+            self.btnTask.removeClickListener(self.onbtnTask, self);
+            self.btnClose.removeClickListener(self.onClose, self);
+        };
+        LackGoldWindow.prototype.initUI = function () {
+            var self = this;
+            self.contentPane = fairygui.UIPackage.createObject("guess", "LackGoldWindow").asCom;
+        };
+        /**
+         * 初始化完成
+         */
+        LackGoldWindow.prototype.onInit = function () {
+            _super.prototype.onInit.call(this);
+            var self = this;
+            self.btnTask = self.contentPane.getChild("btnTask").asButton;
+            self.btnTask.addClickListener(self.onbtnTask, self);
+            self.btnClose = self.contentPane.getChild("btnClose").asButton;
+            self.btnClose.addClickListener(self.onClose, self);
+            self.txtTip = self.contentPane.getChild("txtTip").asTextField;
+        };
+        LackGoldWindow.prototype.initData = function () {
+            var self = this;
+            self.txtTip.text = "金币不足！"; //"观看视频广告可解锁答案";
+            guess.MainWindow.instance.hideRankWnd();
+        };
+        LackGoldWindow.prototype.onbtnTask = function (e) {
+            var self = this;
+            // utils.Singleton.get(AdMgr).watchVideoAd("Video解锁答案", () => {
+            // 	self.hide();
+            // 	utils.EventDispatcher.getInstance().dispatchEvent("watchAdOk");
+            // }, () => {
+            // 	console.log("广告观看未完成！");
+            // });	
+            self.hide();
+            guess.MainWindow.instance.showDrawWindow();
+        };
+        LackGoldWindow.prototype.onClose = function (e) {
+            var self = this;
+            self.hide();
+            if (guess.MainWindow.instance.testWnd && guess.MainWindow.instance.testWnd.isShowing)
+                guess.MainWindow.instance.showRankWnd("vertical", 0, false, false);
+        };
+        return LackGoldWindow;
+    }(guess.BaseWindow));
+    guess.LackGoldWindow = LackGoldWindow;
+    __reflect(LackGoldWindow.prototype, "guess.LackGoldWindow");
 })(guess || (guess = {}));
 var guess;
 (function (guess) {
@@ -1870,6 +1933,8 @@ var guess;
         __extends(TestWindow, _super);
         function TestWindow() {
             var _this = _super !== null && _super.apply(this, arguments) || this;
+            _this.answerChanceCount = 0; // 答错次数
+            _this.freeAnswerCount = 3; // 免费答题次数
             _this.isFillAnswer = false;
             return _this;
         }
@@ -1962,6 +2027,14 @@ var guess;
             var word = e.itemObject;
             if (word.isEmpty())
                 return;
+            // 答题机会用完
+            if (self.answerChanceCount >= self.freeAnswerCount) {
+                if (!self.answerLimitWnd)
+                    self.answerLimitWnd = new guess.AnswerLimitWindow("guess", "AnswerLimitWindow", true);
+                self.answerLimitWnd.show();
+                self.answerLimitWnd.initData();
+                return;
+            }
             word.hide();
             var idx = self.lstOption.getChildIndex(word);
             for (var i = 0; i < self.lstSelect.numItems; i++) {
@@ -1972,8 +2045,7 @@ var guess;
                     break;
                 }
             }
-            // 填满后检测答案
-            self.checkAnswer();
+            self.checkAnswer(); // 填满后检测答案		
         };
         TestWindow.prototype.checkAnswer = function () {
             var self = this;
@@ -2019,6 +2091,7 @@ var guess;
                 utils.Singleton.get(utils.SoundMgr).playSound("right_mp3"); // 答对声音
             }
             else {
+                self.answerChanceCount++;
                 // 错误提示
                 self.wrongTip.visible = true;
                 egret.Tween.get(self.wrongTip).set({ alpha: 0 })
@@ -2052,6 +2125,7 @@ var guess;
             guess.MainWindow.instance.hideRankWnd();
             guess.MainWindow.instance.showRankWnd("vertical", 0, false, false);
             utils.Singleton.get(guess.AdMgr).showBannerAd("Banner答题");
+            self.answerChanceCount = 0;
         };
         TestWindow.prototype.refreshGold = function () {
             var self = this;
@@ -2168,6 +2242,10 @@ var guess;
         TestWindow.prototype.onShareOk = function () {
             // 分享成功加金币
             utils.Singleton.get(guess.GameMgr).modifyGold(guess.GameCfg.getCfg().FirstShareGroupGold);
+        };
+        TestWindow.prototype.resetAnswerChance = function () {
+            var self = this;
+            self.answerChanceCount = 0;
         };
         return TestWindow;
     }(guess.BaseWindow));
