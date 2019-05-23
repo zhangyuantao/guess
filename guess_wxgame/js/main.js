@@ -780,7 +780,7 @@ var guess;
             if (!adId)
                 return;
             var info = {
-                adUnitId: 'adunit-aa345621a1364836',
+                adUnitId: adId,
                 style: {
                     left: (self.screenWidth - 300) * 0.5,
                     top: top || 0,
